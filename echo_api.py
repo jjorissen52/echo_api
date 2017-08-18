@@ -14,34 +14,31 @@ class ImproperlyConfigured(BaseException):
 
 
 class Settings:
-    BASE_DIR = os.path.dirname(__file__)
-    SECRETS_LOCATION = 'secrets.json'
 
-    try:
-        with open(SECRETS_LOCATION, 'r') as secrets:
-            secrets = json.load(secrets)
-        USERNAME = secrets['USERNAME']
-        PASSWORD = secrets['PASSWORD']
-        WSDL_LOCATION = secrets["WSDL_LOCATION"]
-        ENDPOINT = secrets["ENDPOINT"]
+    def __init__(self, secrets_location='secrets.json'):
+        try:
+            with open(secrets_location, 'r') as secrets:
+                secrets = json.load(secrets)
+            self.USERNAME = secrets['USERNAME']
+            self.PASSWORD = secrets['PASSWORD']
+            self.WSDL_LOCATION = secrets["WSDL_LOCATION"]
+            self.ENDPOINT = secrets["ENDPOINT"]
 
-    except FileNotFoundError:
-        print("This package is not properly configured and will not perform as expected. You must designate a secrets "
-              "file. See documentation for more information.")
-        USERNAME = ''
-        PASSWORD = ''
-        WSDL_LOCATION = ''
-        ENDPOINT = ''
-
-settings = Settings()
+        except FileNotFoundError:
+            print("echo_api is not properly configured and will not perform as expected. You must designate a fully "
+                  "defined path to your secrets file. See documentation for more information.")
+            self.USERNAME = ''
+            self.PASSWORD = ''
+            self.WSDL_LOCATION = ''
+            self.ENDPOINT = ''
 
 
 class Connection:
-    endpoint = settings.ENDPOINT
-    session = Session()
-    client = Client(settings.WSDL_LOCATION, transport=Transport(session=session))
 
-    def __init__(self):
+    def __init__(self, settings=Settings()):
+        self.endpoint = settings.ENDPOINT
+        self.session = Session()
+        self.client = Client(settings.WSDL_LOCATION, transport=Transport(session=self.session))
         if "Success" in self.client.service.API_Test():
             self.session_id = self.client.service.API_Login(settings.USERNAME, settings.PASSWORD).split("|")[1]
         else:

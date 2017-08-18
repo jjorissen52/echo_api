@@ -5,13 +5,15 @@ pip install echo_api
 
 ## Secrets
 
-`echo_api` is configured to take credentials from a file named `secrets.json` that should live in your project directory and make reference to it in the `settings` module. `secrets.json` should look something like:
+`echo_api` is configured to take credentials from a file named `secrets.json` that is expected by default in your working directory. `secrets.json` should look like:
 {
     "USERNAME": "Username",
     "PASSWORD": "P4ssw0rd123",
     "WSDL_LOCATION": "wsdl.xml",
     "ENDPOINT": "https://cloud.echooneappcloud.com/yourorganization/OneAppWebService"
 }
+If you want `secrets.json` to be somewhere other than your project directory, you will need to set it in a `Settings` object and make reference to it in your `Connection`. More on that below.
+
 Note that you must have credentials for a user that has access to the API before you can proceed.
 
 ## API Definition
@@ -29,11 +31,11 @@ You will want to change
 <soap:address location="https://eoaapp0.echooneapp.com/YourOrganization/OneAppWebService.svc"/>
 to
 <soap:address location="https://cloud.echooneappcloud.com/yourorganization/OneAppWebService"/>
-Once you've done that, test your connection.
+Once you've set up your wsdl and secrets files, test your connection. For a secrets file that will remain in your project directory, simply use:
 
 
 ```python
-from api import Connection
+from echo_api import Connection
 # Connection() will log you in if everything is correctly configured.
 connection = Connection()
 connection.session_id
@@ -46,9 +48,12 @@ connection.session_id
 
 
 
-Your session_id should look like a random string of characters.
+If you wish to use a custom secrets location, you will need to create a `Settings` object and use that when creating your connection. 
 
 
 ```python
-
+from echo_api import Settings, Connection
+# secrets_location is full or relative path to secrets location
+settings = Settings(secrets_location='secrets.json')
+connection = Connection(settings=settings)
 ```
