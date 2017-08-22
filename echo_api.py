@@ -1,5 +1,6 @@
 import os, json, importlib
 from requests import Session
+from functools import wraps
 
 from zeep import Client
 from zeep.transports import Transport
@@ -19,6 +20,17 @@ class ImproperlyConfigured(BaseException):
 
 class APICallError(BaseException):
     pass
+
+
+def handle_response_error(method):
+    @wraps(method)
+    def _impl(self, *method_args, **method_kwargs):
+        response = method(self, *method_args, **method_kwargs)
+        if "Error|" in response:
+            raise APICallError(response)
+        else:
+            return response
+    return _impl
 
 
 class Settings:
@@ -42,15 +54,10 @@ class Settings:
 
 
 class Connection:
+    @handle_response_error
     def get_physician(self, physician_id):
         args = [self.session_id, "PhysicianDetail", "Symed", f"@PhysicianID|{physician_id}|int"]
-        result = self.client.service.API_GetData(*args)
-
-        if "Error|" in result:
-            raise APICallError(result)
-
-        else:
-            return result
+        return self.client.service.API_GetData(*args)
 
     def add_physician(self, office_id, **kwargs):
         args = [self.session_id, "Locations", "Provider", "PhysicianDetail_Create", 5, f"@OfficeID|{office_id}|int"]
@@ -64,6 +71,7 @@ class Connection:
             else:
                 return result
 
+    @handle_response_error
     def edit_physician(self, physician_id, **kwargs):
         physician = self.get_physician(physician_id)
         schema_and_data = ET.fromstring(physician)
@@ -76,22 +84,17 @@ class Connection:
         updated_schema = ET.tostring(schema_and_data)
         args = [self.session_id, "Locations", "Provider", "PhysicianDetail",
                 "Symed", f"@PhysicianID|{physician_id}|int", updated_schema]
-        result = self.client.service.API_UpdateData(*args)
-        if "Error|" in result:
-            raise APICallError(result)
-        else:
-            return result
+        return self.client.service.API_UpdateData(*args)
 
-    def delete_physician(self, physician_id):
+    @handle_response_error
+    def delete_physician(self, physician_id="", office_id=""):
+        if not (physician_id and office_id):
+            raise APICallError("You must specify both the physician_id and office_id.")
         args = [self.session_id, "Locations", "Provider", "PhysicianDetail_Delete", 6,
-                f"@PhysicianID|{physician_id}|int"]
-        result = self.client.service.API_TreeDataCommand(*args)
-        if "Error|" in result:
-            raise APICallError(result)
-        else:
-            return result
+                f"@PhysicianID|{physician_id}|int@OfficeID|{office_id}|int"]
+        return self.client.service.API_TreeDataCommand(*args)
 
-    def get_newest_physician(self):
+    def get_latest_physician(self):
         qs = "SELECT * FROM PhysicianDetail"
         schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
         schema = XMLSchema(schema_str)
@@ -99,17 +102,36 @@ class Connection:
         physicians = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
         return sorted(physicians, key=lambda x: int(x['PhysicianID']), reverse=True)[0]
 
+    @handle_response_error
     def get_office(self, office_id):
         args = [self.session_id, "Office", "Symed", f"@OfficeID|{office_id}|int"]
-        result = self.client.service.API_GetData(*args)
+        return self.client.service.API_GetData(*args)
 
-        if "Error|" in result:
-            raise APICallError(result)
-        else:
-            return result
+    @handle_response_error
+    def add_office(self, practice_id=""):
+        if not practice_id:
+            raise APICallError("You must provide a practice_id with which to associate this office.")
+        args = [self.session_id, "Locations", "Office", "Offices_Create", 5, f"@PracticeID|{practice_id}|int"]
+        return self.client.service.API_TreeDataCommand(*args)
 
-    def get_newest_office(self):
+    @handle_response_error
+    def delete_office(self, office_id=""):
+        if not office_id:
+            raise APICallError("You must specify the office_id.")
+        args = [self.session_id, "Locations", "Office", "Offices_Delete", 6,
+                f"@OfficeID|{office_id}|int"]
+        return self.client.service.API_TreeDataCommand(*args)
+
+    def get_latest_office(self):
         qs = "SELECT * FROM Offices"
+        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
+        schema = XMLSchema(schema_str)
+        paths = schema.locate(OfficeID__ne='-1')
+        offices = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
+        return sorted(offices, key=lambda x: int(x['OfficeID']), reverse=True)[0]
+
+    def get_latest_practice(self):
+        qs = "SELECT * FROM Offices WHERE OfficeID = PracticeID"
         schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
         schema = XMLSchema(schema_str)
         paths = schema.locate(OfficeID__ne='-1')
