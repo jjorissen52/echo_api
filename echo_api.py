@@ -22,7 +22,7 @@ class APICallError(BaseException):
     pass
 
 
-def handle_response_error(method):
+def handle_response(method):
     @wraps(method)
     def _impl(self, *method_args, **method_kwargs):
         response = method(self, *method_args, **method_kwargs)
@@ -54,7 +54,7 @@ class Settings:
 
 
 class Connection:
-    @handle_response_error
+    @handle_response
     def get_physician(self, physician_id):
         args = [self.session_id, "PhysicianDetail", "Symed", f"@PhysicianID|{physician_id}|int"]
         return self.client.service.API_GetData(*args)
@@ -71,7 +71,7 @@ class Connection:
             else:
                 return result
 
-    @handle_response_error
+    @handle_response
     def edit_physician(self, physician_id, **kwargs):
         physician = self.get_physician(physician_id)
         schema_and_data = ET.fromstring(physician)
@@ -86,7 +86,7 @@ class Connection:
                 "Symed", f"@PhysicianID|{physician_id}|int", updated_schema]
         return self.client.service.API_UpdateData(*args)
 
-    @handle_response_error
+    @handle_response
     def delete_physician(self, physician_id="", office_id=""):
         if not (physician_id and office_id):
             raise APICallError("You must specify both the physician_id and office_id.")
@@ -102,19 +102,19 @@ class Connection:
         physicians = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
         return sorted(physicians, key=lambda x: int(x['PhysicianID']), reverse=True)[0]
 
-    @handle_response_error
+    @handle_response
     def get_office(self, office_id):
         args = [self.session_id, "Office", "Symed", f"@OfficeID|{office_id}|int"]
         return self.client.service.API_GetData(*args)
 
-    @handle_response_error
+    @handle_response
     def add_office(self, practice_id=""):
         if not practice_id:
             raise APICallError("You must provide a practice_id with which to associate this office.")
         args = [self.session_id, "Locations", "Office", "Offices_Create", 5, f"@PracticeID|{practice_id}|int"]
         return self.client.service.API_TreeDataCommand(*args)
 
-    @handle_response_error
+    @handle_response
     def delete_office(self, office_id=""):
         if not office_id:
             raise APICallError("You must specify the office_id.")
