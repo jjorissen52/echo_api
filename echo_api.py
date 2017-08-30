@@ -8,6 +8,7 @@ from zeep.transports import Transport
 from xmlmanip import XMLSchema
 
 import xml.etree.ElementTree as ET
+import uuid
 
 
 class APITestFailError(BaseException):
@@ -54,6 +55,26 @@ class Settings:
 
 
 class Connection:
+    def _get_physician_guid(self, physician_id):
+        qs = f"SELECT * FROM PhysicianDetail WHERE PhysicianID={physician_id}"
+        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
+        schema = XMLSchema(schema_str)
+        paths = schema.locate(PhysicianID__ne='-1')
+        physicians = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
+        if len(physicians) > 0:
+            physician = sorted(physicians, key=lambda x: int(x['PhysicianID']), reverse=True)[0]
+        else:
+            raise APICallError(f'No Physicians matching id {physician_id}')
+        return physician["EntityGuid"]
+
+    def get_latest_contact_log(self, physician_id):
+        qs = "SELECT * FROM ContactLog"
+        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
+        schema = XMLSchema(schema_str)
+        paths = schema.locate(CallID__ne='-1')
+        logs = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
+        return sorted(logs, key=lambda x: int(x['CallID']), reverse=True)[0]
+
     @handle_response
     def get_physician(self, physician_id):
         args = [self.session_id, "PhysicianDetail", "Symed", f"@PhysicianID|{physician_id}|int"]
@@ -137,6 +158,18 @@ class Connection:
         paths = schema.locate(OfficeID__ne='-1')
         offices = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
         return sorted(offices, key=lambda x: int(x['OfficeID']), reverse=True)[0]
+
+    @handle_response
+    def get_contact_log(self, physician_id):
+        guid = self._get_physician_guid(physician_id)
+        print(guid)
+        guid_string = '{' + guid + '}'
+        guid = uuid.UUID(f'{guid_string}').hex
+        print(guid)
+        args = [self.session_id, "CallLog", "Symed", f'@EntityGuid|"{guid}"|Guid']
+        args = [self.session_id, "CallLog", "Symed", f'@PhysicianID|{physician_id}|int']
+        print(args)
+        return self.client.service.API_GetData(*args)
 
     def __init__(self, settings=Settings()):
         self.endpoint = settings.ENDPOINT
