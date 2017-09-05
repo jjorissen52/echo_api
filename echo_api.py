@@ -1,4 +1,5 @@
-import os, json, importlib
+import configparser
+import os, sys
 from requests import Session
 from functools import wraps
 
@@ -8,7 +9,6 @@ from zeep.transports import Transport
 from xmlmanip import XMLSchema
 
 import xml.etree.ElementTree as ET
-import uuid
 
 
 class APITestFailError(BaseException):
@@ -21,6 +21,9 @@ class ImproperlyConfigured(BaseException):
 
 class APICallError(BaseException):
     pass
+
+SECRETS_LOCATION = os.environ.get('ECHO_SECRETS_LOCATION')
+SECRETS_LOCATION = os.path.abspath(SECRETS_LOCATION) if SECRETS_LOCATION else 'secrets.conf'
 
 
 def handle_response(method):
@@ -36,18 +39,20 @@ def handle_response(method):
 
 class Settings:
 
-    def __init__(self, secrets_location='secrets.json'):
+    def __init__(self, secrets_location=SECRETS_LOCATION):
+        config = configparser.ConfigParser()
         try:
-            with open(secrets_location, 'r') as secrets:
-                secrets = json.load(secrets)
-            self.USERNAME = secrets['USERNAME']
-            self.PASSWORD = secrets['PASSWORD']
-            self.WSDL_LOCATION = secrets["WSDL_LOCATION"]
-            self.ENDPOINT = secrets["ENDPOINT"]
+            config.read(secrets_location)
+            self.USERNAME = config.get('echo', 'username')
+            self.PASSWORD = config.get('echo', 'password')
+            self.WSDL_LOCATION = config.get('echo', 'wsdl_location')
+            self.ENDPOINT = config.get('echo', 'endpoint')
 
-        except FileNotFoundError:
-            print("echo_api is not properly configured and will not perform as expected. You must designate a fully "
-                  "defined path to your secrets file. See documentation for more information.")
+        except configparser.NoSectionError:
+            sys.stdout.write(f'Region [echo] was not found in the configuration file. '
+                             f'You must set the location to a configuration file using the environment variable '
+                             f'ECHO_SECRETS_LOCATION or have a file named "secrets.conf". Check the documentation'
+                             f'for an example layout of this file.')
             self.USERNAME = ''
             self.PASSWORD = ''
             self.WSDL_LOCATION = ''
