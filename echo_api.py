@@ -1,5 +1,5 @@
 import configparser
-import os, sys
+import os, sys, moment
 from requests import Session
 from functools import wraps
 
@@ -58,6 +58,50 @@ class Settings:
             self.WSDL_LOCATION = ''
             self.ENDPOINT = ''
 
+DOCSTRING = """
+    self.client.service.API_SelectParameters(session, screenName, nameSpace)
+    Parameters:
+        session (string): the session id returned from a login.
+        sreenName (string): name of the screen.
+        nameSpace (string): the name space that the screen belongs to. Currently always “Symed”.
+    
+    self.client.service.API_UpdateData(session, treename, levelname, screenName, nameSpace, parameters)
+    Parameters:
+        session (string): the session id returned from a login.
+        treename (string): the name of tree (for providers, this is “Locations”)
+        levelname (string): the name of the level (for providers, this is “Providers”)
+        sreenName (string): name of the screen.
+        nameSpace (string): the name space that the screen belongs to. Currently always “Symed”.
+        parameters (string): the parameters for the select statement. It is possible to get the 
+                             names of the parameters from the API_SelectParameters function, 
+                             the values will need to be supplied by the programmer.
+        dsXML (string): the XML data containing the updates.
+        
+    self.client.service.API_GeneralQuery(session, query, parameters)
+    Parameters:
+        session (string): the session id returned from a login.
+        query (string): the actual query that will be run.
+        parameters (string): optional set of parameters in the form @name|value|type, where the name 
+                             is the parameter name, value is the value of the parameter and type specifies 
+                             the type (int, string, Guid, decimal).    
+                             
+    self.client.service.API_TreeDataCommand(session, treename, levelname, storedproc, operation)
+    Parameters:
+        session (string): the session id returned from a login.
+        treename (string): the name of tree (for providers, this is “Locations”)
+        levelname (string): the name of the level (for providers, this is “Providers”)
+        storedproc (string): the stored procedure that will perform the operation (for adding providers, 
+                             this is PhysicianDetail_Create)
+        operation (int): an integer that specifies the operation (0, 5 or 6). The currently supported 
+                         operations are
+                * 0 – execute stored procedure
+                * 5 – add an item to the tree
+                * 6 – delete an item from the tree.
+                * parameters (string) set of parameters in the form @name|value|type, where the name is 
+                  the parameter name, value is the value of the parameter and type specifies the type 
+                  (int, string, guid, decimal). 
+    """
+
 
 class Connection:
     def __init__(self, settings=Settings()):
@@ -79,7 +123,7 @@ class Connection:
         items = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
         kwarg_key = list(kwarg.keys())[0].split('__')[0]
         sorted_list = sorted(items, key=lambda x: int(x[kwarg_key])) if show_all else \
-        sorted(items, key=lambda x: int(x[kwarg_key]))[-1]
+            sorted(items, key=lambda x: int(x[kwarg_key]))[-1]
         return sorted_list
 
     @handle_response
@@ -94,6 +138,29 @@ class Connection:
         else:
             raise APICallError(f'No Physicians matching id {physician_id}')
         return physician["EntityGuid"]
+
+    @staticmethod
+    def _indent(elem, level=0):
+        i = f"\n{level*'  '}"
+        if len(elem):
+            if not elem.text or not elem.text.strip():
+                elem.text = f"{i} "
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+            for elem in elem:
+                Connection._indent(elem, level + 1)
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+        else:
+            if level and (not elem.tail or not elem.tail.strip()):
+                elem.tail = i
+
+    @staticmethod
+    def _pretty_print(schema_str):
+        root = ET.fromstring(schema_str)
+        tree = ET.ElementTree(root)
+        Connection._indent(root)
+        print(str(ET.tostring(root), 'utf-8'))
 
     """
     Add Stuff
@@ -111,6 +178,34 @@ class Connection:
                 return self.edit_physician(physician_id, **kwargs)
             else:
                 return result
+
+    def add_contact_log_entry(self, physician_id, **kwargs):
+        if 'Notes' not in kwargs.keys():
+            raise APICallError(f'You must add a note to contact log entries.')
+        guid = self._get_physician_guid(physician_id)
+        log_data = self.get_contact_log(physician_id)
+        schema_and_data = ET.fromstring(log_data)
+        kwargs2 = {'CallID': len(schema_and_data[1]) // 2, 'Subject': kwargs.pop('Subject')}
+        kwargs1 = {
+            'EntityGuid': guid, 'CallID': len(schema_and_data[1]) // 2, 'ContactID': 0,
+            'ContactDate': moment.utcnow().strftime("%Y-%m-%dT%H:%M:%S"), **kwargs
+        }
+        for i, (key, value) in enumerate(kwargs1.items()):
+            if i == 0:
+                new_table1 = ET.SubElement(schema_and_data[1], 'Table')
+            new_attr = ET.SubElement(new_table1, key)
+            new_attr.text = f'{value}'
+        for i, (key, value) in enumerate(kwargs2.items()):
+            if i == 0:
+                new_table2 = ET.SubElement(schema_and_data[1], 'Table1')
+            new_attr = ET.SubElement(new_table2, key)
+            new_attr.text = f'{value}'
+        updated_schema = ET.tostring(schema_and_data)
+        Connection._pretty_print(updated_schema)
+        args = [self.session_id, "Locations", "Provider", "CallLog", "Symed",
+                f'@EntityGuid|{guid}|guid', updated_schema]
+        print(args[:-1])
+        return self.client.service.API_UpdateData(*args)
 
     @handle_response
     def add_office(self, practice_id=""):
@@ -132,7 +227,7 @@ class Connection:
                 new_attr = ET.SubElement(schema_and_data[1][0], key)
                 new_attr.text = value
             else:
-                schema_and_data[1][0].find(key).text = value
+                schema_and_data[1][0].find(key).text = f'{value}'
         updated_schema = ET.tostring(schema_and_data)
         args = [self.session_id, "Locations", "Provider", "PhysicianDetail",
                 "Symed", f"@PhysicianID|{physician_id}|int", updated_schema]
@@ -189,13 +284,6 @@ class Connection:
         return self._search_schema(schema_str, PhysicianID__ne=-1)
 
     @handle_response
-    def show_contact_log(self, physician_id):
-        guid = self._get_physician_guid(physician_id)
-        args = [self.session_id, "CallLog", "Symed", f'@EntityGuid|{guid}|guid']
-        schema_str = self.client.service.API_GetData(*args)
-        return self._search_schema(schema_str, CallID__ne=-1)
-
-    @handle_response
     def show_office(self, office_id):
         args = [self.session_id, "Office", "Symed", f"@OfficeID|{office_id}|int"]
         schema_str = self.client.service.API_GetData(*args)
@@ -218,4 +306,12 @@ class Connection:
         qs = "SELECT * FROM PhysicianDetail"
         schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
         return self._search_schema(schema_str, show_all=False, PhysicianID__ne=-1)
+
+    @handle_response
+    def show_latest_contact_log(self):
+        qs = "SELECT * FROM ContactLog"
+        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
+        return self._search_schema(schema_str, show_all=False, CallID__ne=-1)
+
+
 
