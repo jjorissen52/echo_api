@@ -55,6 +55,29 @@ class Settings:
 
 
 class Connection:
+    def __init__(self, settings=Settings()):
+        self.endpoint = settings.ENDPOINT
+        self.session = Session()
+        self.client = Client(settings.WSDL_LOCATION, transport=Transport(session=self.session))
+        if "Success" in self.client.service.API_Test():
+            self.session_id = self.client.service.API_Login(settings.USERNAME, settings.PASSWORD).split("|")[1]
+        else:
+            raise APITestFailError("Test connection failed.")
+
+    """
+    Helper Methods
+    """
+
+    def _search_schema(self, schema_str, show_all=True, **kwarg):
+        schema = XMLSchema(schema_str)
+        paths = schema.locate(**kwarg)
+        items = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
+        kwarg_key = list(kwarg.keys())[0].split('__')[0]
+        sorted_list = sorted(items, key=lambda x: int(x[kwarg_key])) if show_all else \
+        sorted(items, key=lambda x: int(x[kwarg_key]))[-1]
+        return sorted_list
+
+    @handle_response
     def _get_physician_guid(self, physician_id):
         qs = f"SELECT * FROM PhysicianDetail WHERE PhysicianID={physician_id}"
         schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
@@ -67,19 +90,11 @@ class Connection:
             raise APICallError(f'No Physicians matching id {physician_id}')
         return physician["EntityGuid"]
 
-    def get_latest_contact_log(self, physician_id):
-        qs = "SELECT * FROM ContactLog"
-        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
-        schema = XMLSchema(schema_str)
-        paths = schema.locate(CallID__ne='-1')
-        logs = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
-        return sorted(logs, key=lambda x: int(x['CallID']), reverse=True)[0]
+    """
+    Add Stuff
+    """
 
     @handle_response
-    def get_physician(self, physician_id):
-        args = [self.session_id, "PhysicianDetail", "Symed", f"@PhysicianID|{physician_id}|int"]
-        return self.client.service.API_GetData(*args)
-
     def add_physician(self, office_id, **kwargs):
         args = [self.session_id, "Locations", "Provider", "PhysicianDetail_Create", 5, f"@OfficeID|{office_id}|int"]
         result = self.client.service.API_TreeDataCommand(*args)
@@ -91,6 +106,17 @@ class Connection:
                 return self.edit_physician(physician_id, **kwargs)
             else:
                 return result
+
+    @handle_response
+    def add_office(self, practice_id=""):
+        if not practice_id:
+            raise APICallError("You must provide a practice_id with which to associate this office.")
+        args = [self.session_id, "Locations", "Office", "Offices_Create", 5, f"@PracticeID|{practice_id}|int"]
+        return self.client.service.API_TreeDataCommand(*args)
+
+    """
+    Edit Stuff
+    """
 
     @handle_response
     def edit_physician(self, physician_id, **kwargs):
@@ -107,32 +133,16 @@ class Connection:
                 "Symed", f"@PhysicianID|{physician_id}|int", updated_schema]
         return self.client.service.API_UpdateData(*args)
 
+    """
+    Delete Stuff
+    """
+
     @handle_response
     def delete_physician(self, physician_id="", office_id=""):
         if not (physician_id and office_id):
             raise APICallError("You must specify both the physician_id and office_id.")
         args = [self.session_id, "Locations", "Provider", "PhysicianDetail_Delete", 6,
                 f"@PhysicianID|{physician_id}|int@OfficeID|{office_id}|int"]
-        return self.client.service.API_TreeDataCommand(*args)
-
-    def get_latest_physician(self):
-        qs = "SELECT * FROM PhysicianDetail"
-        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
-        schema = XMLSchema(schema_str)
-        paths = schema.locate(PhysicianID__ne='-1')
-        physicians = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
-        return sorted(physicians, key=lambda x: int(x['PhysicianID']), reverse=True)[0]
-
-    @handle_response
-    def get_office(self, office_id):
-        args = [self.session_id, "Office", "Symed", f"@OfficeID|{office_id}|int"]
-        return self.client.service.API_GetData(*args)
-
-    @handle_response
-    def add_office(self, practice_id=""):
-        if not practice_id:
-            raise APICallError("You must provide a practice_id with which to associate this office.")
-        args = [self.session_id, "Locations", "Office", "Offices_Create", 5, f"@PracticeID|{practice_id}|int"]
         return self.client.service.API_TreeDataCommand(*args)
 
     @handle_response
@@ -143,39 +153,64 @@ class Connection:
                 f"@OfficeID|{office_id}|int"]
         return self.client.service.API_TreeDataCommand(*args)
 
-    def get_latest_office(self):
-        qs = "SELECT * FROM Offices"
-        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
-        schema = XMLSchema(schema_str)
-        paths = schema.locate(OfficeID__ne='-1')
-        offices = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
-        return sorted(offices, key=lambda x: int(x['OfficeID']), reverse=True)[0]
+    """
+    Get Stuff
+    """
 
-    def get_latest_practice(self):
-        qs = "SELECT * FROM Offices WHERE OfficeID = PracticeID"
-        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
-        schema = XMLSchema(schema_str)
-        paths = schema.locate(OfficeID__ne='-1')
-        offices = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
-        return sorted(offices, key=lambda x: int(x['OfficeID']), reverse=True)[0]
+    @handle_response
+    def get_physician(self, physician_id):
+        args = [self.session_id, "PhysicianDetail", "Symed", f"@PhysicianID|{physician_id}|int"]
+        return self.client.service.API_GetData(*args)
+
+    @handle_response
+    def get_office(self, office_id):
+        args = [self.session_id, "Office", "Symed", f"@OfficeID|{office_id}|int"]
+        return self.client.service.API_GetData(*args)
 
     @handle_response
     def get_contact_log(self, physician_id):
         guid = self._get_physician_guid(physician_id)
-        print(guid)
-        guid_string = '{' + guid + '}'
-        guid = uuid.UUID(f'{guid_string}').hex
-        print(guid)
-        args = [self.session_id, "CallLog", "Symed", f'@EntityGuid|"{guid}"|Guid']
-        args = [self.session_id, "CallLog", "Symed", f'@PhysicianID|{physician_id}|int']
-        print(args)
+        args = [self.session_id, "CallLog", "Symed", f'@EntityGuid|{guid}|guid']
         return self.client.service.API_GetData(*args)
 
-    def __init__(self, settings=Settings()):
-        self.endpoint = settings.ENDPOINT
-        self.session = Session()
-        self.client = Client(settings.WSDL_LOCATION, transport=Transport(session=self.session))
-        if "Success" in self.client.service.API_Test():
-            self.session_id = self.client.service.API_Login(settings.USERNAME, settings.PASSWORD).split("|")[1]
-        else:
-            raise APITestFailError("Test connection failed.")
+    """
+    Show Stuff
+    """
+
+    @handle_response
+    def show_physician(self, physician_id):
+        args = [self.session_id, "PhysicianDetail", "Symed", f"@PhysicianID|{physician_id}|int"]
+        schema_str = self.client.service.API_GetData(*args)
+        return self._search_schema(schema_str, PhysicianID__ne=-1)
+
+    @handle_response
+    def show_contact_log(self, physician_id):
+        guid = self._get_physician_guid(physician_id)
+        args = [self.session_id, "CallLog", "Symed", f'@EntityGuid|{guid}|guid']
+        schema_str = self.client.service.API_GetData(*args)
+        return self._search_schema(schema_str, CallID__ne=-1)
+
+    @handle_response
+    def show_office(self, office_id):
+        args = [self.session_id, "Office", "Symed", f"@OfficeID|{office_id}|int"]
+        schema_str = self.client.service.API_GetData(*args)
+        return self._search_schema(schema_str, show_all=False, OfficeID__ne=-1)
+
+    @handle_response
+    def show_latest_office(self):
+        qs = "SELECT * FROM Offices"
+        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
+        return self._search_schema(schema_str, show_all=False, OfficeID__ne=-1)
+
+    @handle_response
+    def show_latest_practice(self):
+        qs = "SELECT * FROM Offices WHERE OfficeID = PracticeID"
+        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
+        return self._search_schema(schema_str, show_all=False, OfficeID__ne=-1)
+
+    @handle_response
+    def show_latest_physician(self):
+        qs = "SELECT * FROM PhysicianDetail"
+        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
+        return self._search_schema(schema_str, show_all=False, PhysicianID__ne=-1)
+
