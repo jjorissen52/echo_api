@@ -187,7 +187,7 @@ class Connection:
         schema_and_data = ET.fromstring(log_data)
         kwargs2 = {'CallID': len(schema_and_data[1]) // 2, 'Subject': kwargs.pop('Subject')}
         kwargs1 = {
-            'EntityGuid': guid, 'CallID': len(schema_and_data[1]) // 2, 'ContactID': 0,
+            'SECURITY_CONTEXT': "", 'EntityGuid': guid, 'CallID': len(schema_and_data[1]) // 2, 'ContactID': 0,
             'ContactDate': moment.utcnow().strftime("%Y-%m-%dT%H:%M:%S"), **kwargs
         }
         for i, (key, value) in enumerate(kwargs1.items()):
