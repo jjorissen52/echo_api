@@ -83,10 +83,7 @@ class BaseConnection:
 
         :param screen_name: (string) name of the screen
         :param name_space: (string) namespace that the screen belongs to
-        :return: (string) usually a string in the form @name|value|type, where the name is the parameter name,
-        value is the value of the parameter and type specifies the type (int, string, bool, decimal).
-        There may be multiple and not all values will be filled in. If there was an error, a string in the format
-        “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
+        :return: (string) usually a string in the form @name|value|type, where the name is the parameter name, value is the value of the parameter and type specifies the type (int, string, bool, decimal). There may be multiple and not all values will be filled in. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
         """
         return self.client.service.API_SelectParameters(self.session_id, screen_name, name_space)
 
@@ -94,10 +91,8 @@ class BaseConnection:
         """
 
         :param query: the SQL-style query to be run
-        :param parameters: optional set of parameters in form of @name|value|type, where the name is the
-        parameter name, value is the value of the parameter and type specifies the type (int, string, guid, decimal).
-        :return: usually XML with the requested results. If there was an error, a string in the
-        format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
+        :param parameters: optional set of parameters in form of @name|value|type, where the name is the parameter name, value is the value of the parameter and type specifies the type (int, string, guid, decimal).
+        :return: usually XML with the requested results. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
         """
         return self.client.service.API_GeneralQuery(self.session_id, query, parameters)
 
@@ -106,11 +101,9 @@ class BaseConnection:
 
         :param screen_name: the session id returned from a login.
         :param name_space: name of the screen
-        :param parameters: the parameters for the select statement. It is possible to get the
-        names of the parameters from the API_SelectParameters function, the values will need to
+        :param parameters: the parameters for the select statement. It is possible to get the names of the parameters from the API_SelectParameters function, the values will need to
         be supplied by the programmer.
-        :return: usually the XML data. If there was an error, a string in the format “XXX|YYY”
-        where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
+        :return: usually the XML data. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
         """
         return self.client.service.API_GetData(self.session_id, screen_name, name_space, parameters)
 
@@ -121,11 +114,9 @@ class BaseConnection:
         :param level_name: the name of the level (for providers, this is “Providers”)
         :param screen_name: name of the screen.
         :param name_space: the name space that the screen belongs to. Currently always “Symed”.
-        :param parameters: the parameters for the select statement. It is possible to get the names
-        of the parameters from the API_SelectParameters function, the values will need to be supplied by the programmer.
+        :param parameters: the parameters for the select statement. It is possible to get the names of the parameters from the API_SelectParameters function, the values will need to be supplied by the programmer.
         :param dsXML: the XML data containing the updates.
-        :return: usually the XML data. If there was an error, a string in the format “XXX|YYY” where XXX is a
-        general description (Error, Denied, etc) and YYY is the specific description.
+        :return: usually the XML data. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
         """
         return self.client.service.API_UpdateData(self.session_id, tree_name, level_name, screen_name, name_space,
                                                   parameters, dsXML)
@@ -137,13 +128,8 @@ class BaseConnection:
         :param level_name: the name of the level (for providers, this is “Providers”)
         :param stored_proc: the stored procedure that will perform the operation
         (for adding providers, this is PhysicianDetail_Create)
-        :param operation: an integer that specifies the operation (0, 5 or 6) is (execute, add, delete).
-        you can run self.get_operation() (self.get_operation('add') for example) to get the integer corresponding to
-        your stored procedure.
-        :return: usually a string in the format of name|value|type where the name is the parameter name,
-        value is the parameter value and type is the parameter type. If this format is returned, the parameter can
-        be used directly with API_GetData to retrieve the newly added item. If there was an error, a string in the
-        format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
+        :param operation: an integer that specifies the operation (0, 5 or 6) is (execute, add, delete). you can run self.get_operation() (self.get_operation('add') for example) to get the integer corresponding to your stored procedure.
+        :return: usually a string in the format of name|value|type where the name is the parameter name, value is the parameter value and type is the parameter type. If this format is returned, the parameter can be used directly with API_GetData to retrieve the newly added item. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
         """
         return self.client.service.API_TreeDataCommand(self.session_id, tree_name, level_name, stored_proc, operation)
 
@@ -156,11 +142,9 @@ class BaseConnection:
         :param return_email: the return email address for the email.
         :param password: the password for the new user (not the API user password).
         :param parameters: the parameters for the provider to add.
-        :param security_groups: (list, string) contains a list (or string separated by vertical bars “|”)
-        of security groups.
+        :param security_groups: (list, string) contains a list (or string separated by vertical bars “|”) of security groups.
         :param send_mail: (bool) do we send the registration mail?
-        :return: a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, Success, etc)
-        and YYY is the specific description.
+        :return: a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, Success, etc) and YYY is the specific description.
         """
         if issubclass(security_groups, list):
             security_groups = '|'.join(security_groups)
@@ -173,17 +157,14 @@ class BaseConnection:
 
         :param username: the base user name. No domain, actual login id, not the display name.
         :param password: the password corresponding to the user name.
-        :return: if successful, a string containing the session id, in the format “SessionID|XXX” where XXX
-        corresponds to the session id. If not successful, a string in the format “XXX|YYY” where XXX is a general
-        description (Error, Denied, etc) and YYY is the specific description.
+        :return: if successful, a string containing the session id, in the format “SessionID|XXX” where XXX corresponds to the session id. If not successful, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
         """
         return self.client.service.API_Login(username, password)
 
     def API_Logout(self):
         """
 
-        :return: a string in the format “XXX|YYY” where XXX is a general description (Success, Error, Denied, etc)
-        and YYY is the specific description.
+        :return: a string in the format “XXX|YYY” where XXX is a general description (Success, Error, Denied, etc) and YYY is the specific description.
         """
         return self.client.service.API_Logout(self.session_id)
 
