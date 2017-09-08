@@ -20,7 +20,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.0.dev',
+    version='1.0.1.dev',
 
     description='Python API for Echo credentialing software',
     long_description=open('README.rst').read(),
@@ -62,9 +62,7 @@ setup(
     # What does your project relate to?
     keywords='ECHO Python API SOAP',
 
-    # You can just specify the packages manually here if your project is
-    # simple. Or you can use find_packages().
-    py_modules=["echo_api"],
+    packages = find_packages(),
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
