@@ -1,3 +1,5 @@
+# !Notice!
+This documentation is not yet complete as the api is still in development. If you need clarification on any of the below feel free to contact me at [jjorissen52@gmail.com](mailto:jjorissen52@gmail.com)
 
 # Installation
 pip install echo_api
@@ -83,7 +85,7 @@ Below is a portion of the SOAP documentation on Echo's end that should be helpfu
    * `nameSpace` (string) the name space that the screen belongs to. Currently always “Symed”.
    * `parameters` (string) the parameters for the select statement. It is possible to get the names of the parameters from the API_SelectParameters function, the values will need to be supplied by the programmer.
    
-`selc.client.connection.API_UpdateData(connection.session_id, treename, levelname, screenName, nameSpace, parameters, dsXML)`
+`connection.client.service.API_UpdateData(connection.session_id, treename, levelname, screenName, nameSpace, parameters, dsXML)`
    * `session` (string): the session id returned from a login.
    * `treename` (string) the name of tree (for providers, this is “Locations”)
    * `levelname` (string) the name of the level (for providers, this is “Providers”)
