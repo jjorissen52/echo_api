@@ -1,0 +1,4 @@
+sphinx-quickstart
+pip install echo_api/
+sphinx-apidoc -o docs echo_api
+sphinx-build -b html doc/source/ doc/build/
