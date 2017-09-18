@@ -22,8 +22,8 @@ class ImproperlyConfigured(BaseException):
 class APICallError(BaseException):
     pass
 
-SECRETS_LOCATION = os.environ.get('ECHO_SECRETS_LOCATION')
-SECRETS_LOCATION = os.path.abspath(SECRETS_LOCATION) if SECRETS_LOCATION else 'secrets.conf'
+SECRETS_LOCATION = os.environ.get('INTERFACE_CONF_FILE')
+SECRETS_LOCATION = os.path.abspath(SECRETS_LOCATION) if SECRETS_LOCATION else 'echo.conf'
 
 
 def handle_response(method):
@@ -60,11 +60,14 @@ class Settings:
 
 
 class BaseConnection:
+    """
+    BaseConnection has the core functionality required to interact with Echo's SOAP API.
+    """
 
     def get_operations(self, key=""):
         """
 
-        :param key: key corresponding to stored procedure. If empty will show all stored procedures
+        :param key: key corresponding to a stored procedure. If empty will show all stored procedures
         :return: integer corresponding to stored procedure
         """
         operations = {
@@ -103,6 +106,7 @@ class BaseConnection:
         :param name_space: name of the screen
         :param parameters: the parameters for the select statement. It is possible to get the names of the parameters from the API_SelectParameters function, the values will need to
         be supplied by the programmer.
+
         :return: usually the XML data. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
         """
         return self.client.service.API_GetData(self.session_id, screen_name, name_space, parameters)
@@ -129,6 +133,7 @@ class BaseConnection:
         :param stored_proc: the stored procedure that will perform the operation
         (for adding providers, this is PhysicianDetail_Create)
         :param operation: an integer that specifies the operation (0, 5 or 6) is (execute, add, delete). you can run self.get_operation() (self.get_operation('add') for example) to get the integer corresponding to your stored procedure.
+
         :return: usually a string in the format of name|value|type where the name is the parameter name, value is the parameter value and type is the parameter type. If this format is returned, the parameter can be used directly with API_GetData to retrieve the newly added item. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
         """
         return self.client.service.API_TreeDataCommand(self.session_id, tree_name, level_name, stored_proc, operation)
@@ -279,18 +284,33 @@ class Adders:
 
     @handle_response
     def add_contact_log_entry(self, physician_id, **kwargs):
-        if 'Notes' not in kwargs.keys():
-            raise APICallError(f'You must add a note to contact log entries.')
+        """
+
+        :param physician_id: id of the physician to whom the note will be attached
+        :param kwargs: keyword arguments corresponding to fields added to the log
+            * FollowUpCompleted (boolean string) :: true/false
+            * ContactLogTypeId (int string)
+            * Notes (string)
+            * Subject (string)
+            * ContactID (int string)
+        :return:
+        """
+        required = {'Notes', 'Subject'}
+        if required.intersection(kwargs.keys()) != required:
+            raise APICallError(f'You must add "Notes" and "Subject" to contact log entries.')
         guid = self._get_physician_guid(physician_id)
         log_data = self.get_contact_log(physician_id)
         schema_and_data = ET.fromstring(log_data)
+        kwargs['EntityGuid'] = guid
+        kwargs['TrackingGuid'] = '00000000-0000-0000-0000-000000000000'
+        kwargs['ContactDate'] = moment.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+        kwargs['UserDisplayName'] = 'Back-end API User'
         for i, (key, value) in enumerate(kwargs.items()):
             if i == 0:
                 new_table = ET.SubElement(schema_and_data[1], 'Table')
             new_attr = ET.SubElement(new_table, key)
             new_attr.text = f'{value}'
         updated_schema = ET.tostring(schema_and_data)
-        Helpers._pretty_print(updated_schema, 1)
         args = ["Locations", "Provider", "CallLog", "Symed",
                 f'@EntityGuid|{guid}|guid', updated_schema]
         return self.API_UpdateData(*args)
