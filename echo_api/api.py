@@ -190,6 +190,7 @@ class BaseConnection:
             raise APITestFailError("Test connection failed.")
 
 
+# TODO: eliminate helper class
 class Helpers:
     class Meta:
         abstract = True
@@ -311,9 +312,10 @@ class Adders:
             new_attr = ET.SubElement(new_table, key)
             new_attr.text = f'{value}'
         updated_schema = ET.tostring(schema_and_data)
+        # return updated_schema
         args = ["Locations", "Provider", "CallLog", "Symed",
                 f'@EntityGuid|{guid}|guid', updated_schema]
-        return self.API_UpdateData(*args)
+        return self.API_UpdateData(*args), updated_schema, args[:-1]
 
     @handle_response
     def add_office(self, practice_id=""):
@@ -370,6 +372,29 @@ class Deleters:
         args = ["Locations", "Office", "Offices_Delete", 6,
                 f"@OfficeID|{office_id}|int"]
         return self.API_TreeDataCommand(*args)
+
+    @handle_response
+    def delete_contact_log_entry(self, physician_id, call_id="", limit=2, **kwarg):
+        if call_id:
+            kwarg['CallID'] = f'{call_id}'
+        contact_log = self.get_contact_log(physician_id)
+        guid = self._get_physician_guid(physician_id)
+        schema_and_data = XMLSchema(contact_log)
+        num_delete = len(schema_and_data.search(**kwarg))
+        if num_delete <= limit and num_delete != 0:
+            schema_and_data.delete_elements_where(**kwarg)
+            updated_schema_str = ET.tostring(schema_and_data.schema)
+            args = ["Locations", "Provider", "CallLog", "Symed", f'@EntityGuid|{guid}|guid',
+                    updated_schema_str]
+            return self.API_UpdateData(*args)
+
+        elif num_delete == 0:
+            raise APICallError(f'Could not find CallLog matching {kwarg}.')
+
+        else:
+            raise APICallError(f'Attempted to delete {num_delete} items, which exceeds the limit of {limit}. '
+                               f'If you wish to delete all {num_delete} items, you may set limit={num_delete} '
+                               'when calling this method.')
 
 
 class Getters:
