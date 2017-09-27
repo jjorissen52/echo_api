@@ -6,21 +6,6 @@ This project is a work in progress, and contributions are encouraged. If
 you have questions feels free to contact me at
 `jjorissen52@gmail.com <#jjorissen52@gmail.com>`__
 
--  .. rubric:: `Installation <#installation>`__
-      :name: installation
-
--  .. rubric:: `Configuration <#configuration>`__
-      :name: configuration
-
-   -  .. rubric:: `Secrets <#secrets>`__
-         :name: secrets
-
-   -  .. rubric:: `SOAP API WSDL Definition <#api_definition>`__
-         :name: soap-api-wsdl-definition
-
--  .. rubric:: `Usage <#usage>`__
-      :name: usage
-
 Installation
 ============
 
