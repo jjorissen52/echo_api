@@ -1,11 +1,10 @@
 import unittest
-from echo_api.api import EchoConnection
-
-connection = EchoConnection()
 
 
 class TestShowers(unittest.TestCase):
-    connection = connection
+    from echo_api.api import EchoConnection
+
+    connection = EchoConnection()
 
     def body(self):
         self.connection.show_physician(1)
@@ -23,7 +22,9 @@ class TestShowers(unittest.TestCase):
 
 
 class TestGetters(unittest.TestCase):
-    connection = connection
+    from echo_api.api import EchoConnection
+
+    connection = EchoConnection()
 
     def body(self):
         self.connection.get_physician(1)
