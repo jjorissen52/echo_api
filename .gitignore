@@ -100,4 +100,6 @@ ENV/
 .idea/misc.xml
 .idea/modules.xml
 .idea/workspace.xml
-echo.conf
+Development.ipynb
+*Write-Up*
+.Documentation.ipynb

@@ -1,6 +1,0 @@
-sphinx-quickstart
-pip install echo_api/
-export ECHO_SECRETS_LOCATION=/home/jjorissen/echo_secrets.conf
-sphinx-apidoc -o doc/source echo_api # makes rst for packages
-sphinx-build -b html -a -E doc/source/ doc/build/ # without the -E flag it fails completely to pickup on changes.
-

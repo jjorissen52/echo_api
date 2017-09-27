@@ -1,5 +1,6 @@
 import configparser
 import os, sys, moment
+
 from requests import Session
 from functools import wraps
 
@@ -38,6 +39,9 @@ def handle_response(method):
 
 
 class Settings:
+    """
+    This class only exists to collect settings for the BaseConnection object.
+    """
 
     def __init__(self, secrets_location=SECRETS_LOCATION):
         config = configparser.ConfigParser()
@@ -190,16 +194,23 @@ class BaseConnection:
             raise APITestFailError("Test connection failed.")
 
 
-# TODO: eliminate helper class
 class Helpers:
-    class Meta:
-        abstract = True
-
     """
     Helper Methods
     """
 
+    class Meta:
+        abstract = True
+
     def _search_schema(self, schema_str, show_all=True, **kwarg):
+        """
+
+        :param schema_str: (xml string) valid xml string
+        :param show_all: (boolean) indicate whether we want all items returned in the search. setting to False returns last item only (sorted by the pass kwarg)
+        :param kwarg: (kwarg) kwarg indicating search parameters. for example, if you have a bunch of items with a <name/>, you can search using:
+            * Helpers()._search_schema(schema_str, name__eq="Billy") or Helpers()._search_schema(schema_str, name__contains="B")
+        :return:
+        """
         schema = XMLSchema(schema_str)
         paths = schema.locate(**kwarg)
         items = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
@@ -213,6 +224,10 @@ class Helpers:
 
     @handle_response
     def _get_physician_guid(self, physician_id):
+        """
+        :param physician_id: (int) id of desired physician
+        :return:
+        """
         qs = f"SELECT * FROM PhysicianDetail WHERE PhysicianID={physician_id}"
         schema_str = self.API_GeneralQuery(qs, "")
         physician = self._search_schema(schema_str, show_all=False, PhysicianID__ne=-1)
@@ -248,16 +263,80 @@ class Helpers:
         print(str(ET.tostring(item), 'utf-8'))
 
 
-class Adders:
-    class Meta:
-        abstract = True
+class EchoConnection(Helpers, BaseConnection):
+    """
+    EchoConnection has numerous methods to facilitate the usage of the BaseConnection class.
+    """
 
-    """
-    Add Stuff
-    """
 
     @handle_response
     def add_physician(self, office_id, **kwargs):
+        """
+
+        :param office_id: (int) office that the new physician belongs to
+        :param kwargs: (kwargs) values that you want the new physician to have, ex: LastName="Jones"
+
+            * LastName
+            * FirstName
+            * DegreeID
+            * EMail
+            * Language
+            * TimeEdited
+            * PhysicianPhoto
+            * DoctorNumber
+            * Inactive
+            * DateAdded
+            * ProviderTypeID
+            * DateUpdated
+            * BirthState
+            * EmailAllowed
+            * AlternateEmailAllowed
+            * CAQHPassword
+            * MiddleName
+            * Sex
+            * MaritalStatus
+            * SpouseName
+            * HomeAddress
+            * HomeCity
+            * HomeState
+            * HomeZip
+            * SSN
+            * DateOfBirth
+            * BirthCity
+            * Citizenship
+            * Title
+            * MobilePhone
+            * NPI
+            * StreetName
+            * StreetNumber
+            * DriverLicenseNumber
+            * DriverLicenseExpiration
+            * DriverLicenseState
+            * HomePhone
+            * BirthCountry
+            * HomeCountry
+            * CAQHID
+            * PhysicianPhotoSecondary
+            * UPIN
+            * MaidenName
+            * HomeAddress2
+            * VISAStatus
+            * OtherNameStart
+            * OtherNameStop
+            * AlternateEmail
+            * VisaNumber
+            * PreferredContactMethod
+            * Beeper
+            * BirthCounty
+            * HomeCounty
+            * SuffixName
+            * Medicare
+            * AlliedHealthProfessional
+            * EnrollmentStatusID
+            * CAQHLogin
+            * HomeFax
+        :return:
+        """
         args = ["Locations", "Provider", "PhysicianDetail_Create", 5, f"@OfficeID|{office_id}|int"]
         result = self.API_TreeDataCommand(*args)
         if "Error|" in result:
@@ -271,6 +350,27 @@ class Adders:
 
     @handle_response
     def add_medical_license(self, physician_id, **kwargs):
+        """
+
+        :param physician_id: (int) physician to whom to medical license belongs
+        :param kwargs:  (kwargs) values that you want the new physician to have (ex:
+
+            * LicenseStateOfIssue
+            * LicenseNumber
+            * LicenseDateOfIssue
+            * LicenseExpirationDate
+            * LicenseType
+            * Notified
+            * Active
+            * TimeEdited
+            * DateUpdated
+            * LicenseTypeSpecialty
+            * ProviderTypeID
+            * LicenseStatus
+            * LicenseRenewalDate
+            * LicenseCountry
+        :return:
+        """
         license_data = self.get_medical_licenses(physician_id)
         schema_and_data = ET.fromstring(license_data)
         for i, (key, value) in enumerate(kwargs.items()):
@@ -289,11 +389,13 @@ class Adders:
 
         :param physician_id: id of the physician to whom the note will be attached
         :param kwargs: keyword arguments corresponding to fields added to the log
+
             * FollowUpCompleted (boolean string) :: true/false
             * ContactLogTypeId (int string)
             * Notes (string)
             * Subject (string)
             * ContactID (int string)
+            * ContactDate (isoformat datetime string YYYY-MM-DDTHH:mm:ss)
         :return:
         """
         required = {'Notes', 'Subject'}
@@ -304,7 +406,8 @@ class Adders:
         schema_and_data = ET.fromstring(log_data)
         kwargs['EntityGuid'] = guid
         kwargs['TrackingGuid'] = '00000000-0000-0000-0000-000000000000'
-        kwargs['ContactDate'] = moment.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+        # kwargs['TrackingGuid'] = str(uuid.uuid4())
+        kwargs['TimeEdited'] = moment.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
         kwargs['UserDisplayName'] = 'Back-end API User'
         for i, (key, value) in enumerate(kwargs.items()):
             if i == 0:
@@ -312,29 +415,33 @@ class Adders:
             new_attr = ET.SubElement(new_table, key)
             new_attr.text = f'{value}'
         updated_schema = ET.tostring(schema_and_data)
-        # return updated_schema
         args = ["Locations", "Provider", "CallLog", "Symed",
                 f'@EntityGuid|{guid}|guid', updated_schema]
-        return self.API_UpdateData(*args), updated_schema, args[:-1]
+        return XMLSchema(self.API_UpdateData(*args)).search(CallID__ne='-1')
 
     @handle_response
     def add_office(self, practice_id=""):
+        """
+        This method does not yet have the capability to modify the newly created office; There does not yet exist an
+        edit_office method.
+        :param practice_id: (int) practice with which to associate this new office
+        :return:
+        """
         if not practice_id:
             raise APICallError("You must provide a practice_id with which to associate this office.")
         args = ["Locations", "Office", "Offices_Create", 5, f"@PracticeID|{practice_id}|int"]
-        return self.service.API_TreeDataCommand(*args)
+        return self.API_TreeDataCommand(*args)
 
-
-class Editors:
-    class Meta:
-        abstract = True
-
-    """
-    Edit Stuff
-    """
-
+    # TODO add edit_office method and update add_office method
     @handle_response
     def edit_physician(self, physician_id, **kwargs):
+        """
+
+        :param physician_id: (int) id of physician to be edited
+        :param kwargs:
+            * see add_physician for full list of kwargs
+        :return:
+        """
         physician = self.get_physician(physician_id)
         schema_and_data = ET.fromstring(physician)
         for key, value in kwargs.items():
@@ -348,17 +455,14 @@ class Editors:
                 "Symed", f"@PhysicianID|{physician_id}|int", updated_schema]
         return self.API_UpdateData(*args)
 
-
-class Deleters:
-    class Meta:
-        abstract = True
-
-    """
-    Delete Stuff
-    """
-
     @handle_response
     def delete_physician(self, physician_id="", office_id=""):
+        """
+
+        :param physician_id: (int) id of physician that will be deleted
+        :param office_id: (int) id of office that physician is being removed from. will delete physician if it's the last office
+        :return:
+        """
         if not (physician_id and office_id):
             raise APICallError("You must specify both the physician_id and office_id.")
         args = ["Locations", "Provider", "PhysicianDetail_Delete", 6,
@@ -367,6 +471,11 @@ class Deleters:
 
     @handle_response
     def delete_office(self, office_id=""):
+        """
+
+        :param office_id: (int) id of office to be deleted
+        :return:
+        """
         if not office_id:
             raise APICallError("You must specify the office_id.")
         args = ["Locations", "Office", "Offices_Delete", 6,
@@ -375,6 +484,22 @@ class Deleters:
 
     @handle_response
     def delete_contact_log_entry(self, physician_id, call_id="", limit=2, **kwarg):
+        """
+
+        :param physician_id: (int) id of physician that the log entry belongs to
+        :param call_id:  (int, optional) id of the call log entry to be deleted
+        :param limit: (int) limits the number of logs to be deleted so you don't accidentally delete more than you meant to
+        :param kwarg: (kwarg) search term that tells the XMLSchema object which items need to be deleted, allows almost all default python comparison methods (__lt__, __gt__, __ge__, __ne__, __eq__, etc.), though not all of them are guaranteed to work in every situation. This feature might break with some searches.
+
+            * connection.delete_contact_log_entry(1, call_id=2) will delete the call log with CallID=2
+                * connection.delete_contact_log_entry(1, CallID=2) will do the same
+                * connection.delete_contact_log_entry(1, CallID__eq=2) will also
+            * connection.delete_contact_log_entry(1, limit=20, CallID__ne='-1') will delete up to 20 call log entries where the CallID is not -1 (so it deletes all of them)
+            * connection.delete_contact_log_entry(1, TimeEdited__lt=<insert isoformat timestampe>) will fail to delete the call log with edited before the date unless there is only one that matches the query
+            * note that only CallID and TimeEdited searches will ever work due to a combination of factors.
+
+        :return:
+        """
         if call_id:
             kwarg['CallID'] = f'{call_id}'
         contact_log = self.get_contact_log(physician_id)
@@ -396,329 +521,144 @@ class Deleters:
                                f'If you wish to delete all {num_delete} items, you may set limit={num_delete} '
                                'when calling this method.')
 
-
-class Getters:
-    class Meta:
-        abstract = True
-
-    """
-    Get Stuff
-    """
-
     @handle_response
     def get_physician(self, physician_id):
+        """
+        equivalent of self.API_GetData(*args) for the indicated physician
+        :param physician_id: (int) id of physician whose data we desire
+        :return: (xml string) whatever self.API_GetData(*args) returns
+        """
         args = ["PhysicianDetail", "Symed", f"@PhysicianID|{physician_id}|int"]
         return self.API_GetData(*args)
 
     @handle_response
     def get_office(self, office_id):
+        """
+        equivalent of self.API_GetData(*args) for the indicated office
+        :param office_id: (int) id of whichever office we desire
+        :return: (xml string) whatever self.API_GetData(*args) returns
+        """
         args = ["Office", "Symed", f"@OfficeID|{office_id}|int"]
         return self.API_GetData(*args)
 
     @handle_response
     def get_medical_licenses(self, physician_id):
+        """
+        equivalent of self.API_GetData(*args) for the medical licenses of the indicated physician
+        :param physician_id: (int) id of whichever physician's licenses we desire
+        :return: (xml string) whatever self.API_GetData(*args) returns
+        """
         args = ["MedicalLicenses", "Symed", f"@PhysicianID|{physician_id}|int"]
         return self.API_GetData(*args)
 
     @handle_response
     def get_contact_log(self, physician_id):
+        """
+        equivalent of self.API_GetData(*args) for the contact logs of the indicated physician
+        :param physician_id: (int) id of whichever physician's logs we desire
+        :return:
+        """
         guid = self._get_physician_guid(physician_id)
         args = ["CallLog", "Symed", f'@EntityGuid|{guid}|guid']
         return self.API_GetData(*args)
 
-
-class Showers:
-    class Meta:
-        abstract = True
-
-    """
-    Show Stuff
-    """
-
     @handle_response
-    def show_physician(self, physician_id, show_all=True):
+    def show_physician(self, physician_id):
+        """
+
+        :param physician_id: (int) id of desired physician
+        :return: xmlmanip.InnerSchemaDict (can be used as dict) of info
+        """
         schema_str = self.get_physician(physician_id)
         return self._search_schema(schema_str, PhysicianID__ne=-1)
 
     @handle_response
-    def show_medical_licenses(self, physician_id, show_all=True):
+    def show_physician_medical_licenses(self, physician_id, show_all=True):
+        """
+
+        :param physician_id: (int) id of desired physician
+        :param show_all: (boolean) if True shows all, if False shows last created
+        :return: xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info
+        """
         schema_str = self.get_medical_licenses(physician_id)
         return self._search_schema(schema_str, show_all=show_all, AutoID__ne=-1)
 
     @handle_response
     def show_office(self, office_id):
+        """
+
+        :param office_id: (int) id of desired office
+        :return: xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info
+        """
         schema_str = self.get_office(office_id)
         return self._search_schema(schema_str, show_all=False, OfficeID__ne=-1)
 
     @handle_response
     def show_physician_contact_log(self, physician_id, show_all=True):
+        """
+
+        :param physician_id: (int) id of desired physician
+        :param show_all: (boolean) if True shows all, if False shows last created
+        :return: xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info
+        """
         guid = self._get_physician_guid(physician_id)
         args = ["CallLog", "Symed", f'@EntityGuid|{guid}|guid']
         schema_str = self.API_GetData(*args)
         return self._search_schema(schema_str, show_all=show_all, CallID__ne=-1)
 
     @handle_response
-    def show_latest_office(self, show_all=False):
+    def show_offices(self, show_all=True):
+        """
+
+        :param show_all: (boolean) if True shows all, if False shows last created
+        :return: xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info
+        """
         qs = "SELECT * FROM Offices"
         schema_str = self.API_GeneralQuery(qs, "")
         return self._search_schema(schema_str, show_all=show_all, OfficeID__ne=-1)
 
     @handle_response
-    def show_latest_practice(self, show_all=False):
+    def show_practices(self, show_all=True):
+        """
+
+        :param show_all: (boolean) if True shows all, if False shows last created
+        :return: xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info
+        """
         qs = "SELECT * FROM Offices WHERE OfficeID = PracticeID"
         schema_str = self.API_GeneralQuery(qs, "")
         return self._search_schema(schema_str, show_all=show_all, OfficeID__ne=-1)
 
     @handle_response
-    def show_latest_physician(self, show_all=False):
+    def show_physicians(self, show_all=True):
+        """
+
+        :param show_all: (boolean) if True shows all, if False shows last created
+        :return: xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info
+        """
+
         qs = "SELECT * FROM PhysicianDetail"
         schema_str = self.API_GeneralQuery(qs, "")
         return self._search_schema(schema_str, show_all=show_all, PhysicianID__ne=-1)
 
     @handle_response
-    def show_latest_contact_log(self, show_all=False):
+    def show_contact_logs(self, show_all=True):
+        """
+
+        :param show_all: (boolean) if True shows all, if False shows last created
+        :return: xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info
+        """
         qs = "SELECT * FROM ContactLog"
         schema_str = self.API_GeneralQuery(qs, "")
         return self._search_schema(schema_str, show_all=show_all, CallID__ne=-1)
 
     @handle_response
-    def show_latest_medical_license(self, show_all=False):
+    def show_medical_licenses(self, show_all=True):
+        """
+
+        :param show_all: (boolean) if True shows all, if False shows last created
+        :return: xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info
+        """
         qs = "SELECT * FROM MedicalLicenses"
         schema_str = self.API_GeneralQuery(qs, "")
         return self._search_schema(schema_str, show_all=show_all, AutoID__ne=-1)
 
-
-class EchoConnection(Helpers, Adders, Editors, Deleters, Getters, Showers, BaseConnection):
-    pass
-
-
-class OldConnection(BaseConnection):
-
-
-    """
-    Helper Methods
-    """
-
-    def _search_schema(self, schema_str, show_all=True, **kwarg):
-        schema = XMLSchema(schema_str)
-        paths = schema.locate(**kwarg)
-        items = [schema.retrieve('__'.join(path.split('__')[:-1])) for path in paths]
-        kwarg_key = list(kwarg.keys())[0].split('__')[0]
-        try:
-            sorted_list = sorted(items, key=lambda x: int(x[kwarg_key])) if show_all else \
-                sorted(items, key=lambda x: int(x[kwarg_key]))[-1]
-        except IndexError:  # happens when there are no results in the search
-            sorted_list = None
-        return sorted_list
-
-    @handle_response
-    def _get_physician_guid(self, physician_id):
-        qs = f"SELECT * FROM PhysicianDetail WHERE PhysicianID={physician_id}"
-        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
-        physician = self._search_schema(schema_str, show_all=False, PhysicianID__ne=-1)
-        if physician:
-            return physician['EntityGuid']
-        else:
-            raise APICallError(f'No Physicians matching id {physician_id}')
-
-    @staticmethod
-    def _indent(elem, level=0):
-        i = f"\n{level*'  '}"
-        if len(elem):
-            if not elem.text or not elem.text.strip():
-                elem.text = f"{i} "
-            if not elem.tail or not elem.tail.strip():
-                elem.tail = i
-            for elem in elem:
-                Connection._indent(elem, level + 1)
-            if not elem.tail or not elem.tail.strip():
-                elem.tail = i
-        else:
-            if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = i
-
-    @staticmethod
-    def _pretty_print(schema_str, *keys):
-        root = ET.fromstring(schema_str)
-        tree = ET.ElementTree(root)
-        Connection._indent(root)
-        item = root
-        for key in keys:
-            item = item[key]
-        print(str(ET.tostring(item), 'utf-8'))
-
-    """
-    Add Stuff
-    """
-
-    @handle_response
-    def add_physician(self, office_id, **kwargs):
-        args = [self.session_id, "Locations", "Provider", "PhysicianDetail_Create", 5, f"@OfficeID|{office_id}|int"]
-        result = self.client.service.API_TreeDataCommand(*args)
-        if "Error|" in result:
-            raise APICallError(result)
-        else:
-            if len(kwargs) != 0:
-                physician_id = result.split("|")[1]
-                return self.edit_physician(physician_id, **kwargs)
-            else:
-                return result
-
-    @handle_response
-    def add_medical_license(self, physician_id, **kwargs):
-        license_data = self.get_medical_licenses(physician_id)
-        schema_and_data = ET.fromstring(license_data)
-        for i, (key, value) in enumerate(kwargs.items()):
-            if i == 0:
-                new_table = ET.SubElement(schema_and_data[1], 'Table')
-            new_attr = ET.SubElement(new_table, key)
-            new_attr.text = f'{value}'
-        updated_schema = ET.tostring(schema_and_data)
-        args = [self.session_id, "Locations", "Provider", "MedicalLicenses", "Symed",
-                f'@PhysicianID|{physician_id}|int', updated_schema]
-        return self.client.service.API_UpdateData(*args)
-
-    @handle_response
-    def add_contact_log_entry(self, physician_id, **kwargs):
-        if 'Notes' not in kwargs.keys():
-            raise APICallError(f'You must add a note to contact log entries.')
-        guid = self._get_physician_guid(physician_id)
-        log_data = self.get_contact_log(physician_id)
-        schema_and_data = ET.fromstring(log_data)
-        for i, (key, value) in enumerate(kwargs.items()):
-            if i == 0:
-                new_table = ET.SubElement(schema_and_data[1], 'Table')
-            new_attr = ET.SubElement(new_table, key)
-            new_attr.text = f'{value}'
-        updated_schema = ET.tostring(schema_and_data)
-        Connection._pretty_print(updated_schema, 1)
-        args = [self.session_id, "Locations", "Provider", "CallLog", "Symed",
-                f'@EntityGuid|{guid}|guid', updated_schema]
-        return self.client.service.API_UpdateData(*args)
-
-    @handle_response
-    def add_office(self, practice_id=""):
-        if not practice_id:
-            raise APICallError("You must provide a practice_id with which to associate this office.")
-        args = [self.session_id, "Locations", "Office", "Offices_Create", 5, f"@PracticeID|{practice_id}|int"]
-        return self.client.service.API_TreeDataCommand(*args)
-
-    """
-    Edit Stuff
-    """
-
-    @handle_response
-    def edit_physician(self, physician_id, **kwargs):
-        physician = self.get_physician(physician_id)
-        schema_and_data = ET.fromstring(physician)
-        for key, value in kwargs.items():
-            if schema_and_data[1][0].find(key) is None:
-                new_attr = ET.SubElement(schema_and_data[1][0], key)
-                new_attr.text = value
-            else:
-                schema_and_data[1][0].find(key).text = f'{value}'
-        updated_schema = ET.tostring(schema_and_data)
-        args = [self.session_id, "Locations", "Provider", "PhysicianDetail",
-                "Symed", f"@PhysicianID|{physician_id}|int", updated_schema]
-        return self.client.service.API_UpdateData(*args)
-
-    """
-    Delete Stuff
-    """
-
-    @handle_response
-    def delete_physician(self, physician_id="", office_id=""):
-        if not (physician_id and office_id):
-            raise APICallError("You must specify both the physician_id and office_id.")
-        args = [self.session_id, "Locations", "Provider", "PhysicianDetail_Delete", 6,
-                f"@PhysicianID|{physician_id}|int@OfficeID|{office_id}|int"]
-        return self.client.service.API_TreeDataCommand(*args)
-
-    @handle_response
-    def delete_office(self, office_id=""):
-        if not office_id:
-            raise APICallError("You must specify the office_id.")
-        args = [self.session_id, "Locations", "Office", "Offices_Delete", 6,
-                f"@OfficeID|{office_id}|int"]
-        return self.client.service.API_TreeDataCommand(*args)
-
-    """
-    Get Stuff
-    """
-
-    @handle_response
-    def get_physician(self, physician_id):
-        args = [self.session_id, "PhysicianDetail", "Symed", f"@PhysicianID|{physician_id}|int"]
-        return self.client.service.API_GetData(*args)
-
-    @handle_response
-    def get_office(self, office_id):
-        args = [self.session_id, "Office", "Symed", f"@OfficeID|{office_id}|int"]
-        return self.client.service.API_GetData(*args)
-
-    @handle_response
-    def get_medical_licenses(self, physician_id):
-        args = [self.session_id, "MedicalLicenses", "Symed", f"@PhysicianID|{physician_id}|int"]
-        return self.client.service.API_GetData(*args)
-
-    @handle_response
-    def get_contact_log(self, physician_id):
-        guid = self._get_physician_guid(physician_id)
-        args = [self.session_id, "CallLog", "Symed", f'@EntityGuid|{guid}|guid']
-        return self.client.service.API_GetData(*args)
-
-    """
-    Show Stuff
-    """
-
-    @handle_response
-    def show_physician(self, physician_id, show_all=True):
-        schema_str = self.get_physician(physician_id)
-        return self._search_schema(schema_str, PhysicianID__ne=-1)
-
-    @handle_response
-    def show_medical_licenses(self, physician_id, show_all=True):
-        schema_str = self.get_medical_licenses(physician_id)
-        return self._search_schema(schema_str, show_all=show_all, AutoID__ne=-1)
-
-    @handle_response
-    def show_office(self, office_id):
-        schema_str = self.get_office(office_id)
-        return self._search_schema(schema_str, show_all=False, OfficeID__ne=-1)
-
-    @handle_response
-    def show_physician_contact_log(self, physician_id, show_all=True):
-        guid = self._get_physician_guid(physician_id)
-        args = [self.session_id, "CallLog", "Symed", f'@EntityGuid|{guid}|guid']
-        schema_str = self.client.service.API_GetData(*args)
-        return self._search_schema(schema_str, show_all=show_all, CallID__ne=-1)
-
-    @handle_response
-    def show_latest_office(self, show_all=False):
-        qs = "SELECT * FROM Offices"
-        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
-        return self._search_schema(schema_str, show_all=show_all, OfficeID__ne=-1)
-
-    @handle_response
-    def show_latest_practice(self, show_all=False):
-        qs = "SELECT * FROM Offices WHERE OfficeID = PracticeID"
-        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
-        return self._search_schema(schema_str, show_all=show_all, OfficeID__ne=-1)
-
-    @handle_response
-    def show_latest_physician(self, show_all=False):
-        qs = "SELECT * FROM PhysicianDetail"
-        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
-        return self._search_schema(schema_str, show_all=show_all, PhysicianID__ne=-1)
-
-    @handle_response
-    def show_latest_contact_log(self, show_all=False):
-        qs = "SELECT * FROM ContactLog"
-        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
-        return self._search_schema(schema_str, show_all=show_all, CallID__ne=-1)
-
-    @handle_response
-    def show_latest_medical_license(self, show_all=False):
-        qs = "SELECT * FROM MedicalLicenses"
-        schema_str = self.client.service.API_GeneralQuery(self.session_id, qs, "")
-        return self._search_schema(schema_str, show_all=show_all, AutoID__ne=-1)
