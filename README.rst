@@ -21,13 +21,16 @@ you have questions feels free to contact me at
 -  .. rubric:: `Usage <#usage>`__
       :name: usage
 
- # Installation
+Installation
+============
 
 pip install echo_api
 
- # Configuration
+Configuration
+=============
 
- ## Secrets
+Secrets
+=======
 
 ``echo_api`` is configured to take credentials from a file named
 ``echo.conf`` that is expected by default in your working directory.
@@ -57,7 +60,8 @@ variable.
 Note that you must have credentials for a user that has access to the
 API before you can proceed.
 
- ## SOAP API WSDL Definition
+SOAP API WSDL Definition
+========================
 
 Due to the possibility of some configuration issues on Echo's side, you
 will need to manually inspect the XML describing the API and ensure that
@@ -125,7 +129,8 @@ successfully established and you've got the hard part done.
 
 
 
- # Usage
+Usage
+=====
 
 The ``BaseConnection`` object has all of the API definitions provided by
 the WSDL file. The API documentation can be found at read the docs.
