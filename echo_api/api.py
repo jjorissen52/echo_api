@@ -1,5 +1,6 @@
 import configparser
-import os, sys, moment
+import os, sys
+from datetime import datetime
 
 from requests import Session
 from functools import wraps
@@ -408,7 +409,7 @@ class EchoConnection(Helpers, BaseConnection):
         kwargs['EntityGuid'] = guid
         kwargs['TrackingGuid'] = '00000000-0000-0000-0000-000000000000'
         # kwargs['TrackingGuid'] = str(uuid.uuid4())
-        kwargs['TimeEdited'] = moment.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+        kwargs['TimeEdited'] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         kwargs['UserDisplayName'] = 'Back-end API User'
         for i, (key, value) in enumerate(kwargs.items()):
             if i == 0:
