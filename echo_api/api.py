@@ -88,7 +88,7 @@ class BaseConnection:
 
     def API_SelectParameters(self, screen_name, name_space='Symed'):
         """
-
+        k
         :param screen_name: (string) name of the screen
         :param name_space: (string) namespace that the screen belongs to
         :return: (string) usually a string in the form @name|value|type, where the name is the parameter name, value is the value of the parameter and type specifies the type (int, string, bool, decimal). There may be multiple and not all values will be filled in. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
