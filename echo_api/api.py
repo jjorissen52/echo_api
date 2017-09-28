@@ -54,10 +54,10 @@ class Settings:
             self.ENDPOINT = config.get('echo', 'endpoint')
 
         except configparser.NoSectionError:
-            sys.stdout.write(f'Region [echo] was not found in the configuration file. '
-                             f'You must set the location to a configuration file using the environment variable '
-                             f'ECHO_SECRETS_LOCATION or have a file named "secrets.conf". Check the documentation'
-                             f'for an example layout of this file.')
+            sys.stdout.write("""Region [echo] was not found in the configuration file. \n 
+                             You must set the location to a configuration file using the environment variable \n 
+                             ECHO_SECRETS_LOCATION or have a file named "secrets.conf". Check the documentation \n
+                             for an example layout of this file.""")
             self.USERNAME = ''
             self.PASSWORD = ''
             self.WSDL_LOCATION = ''
