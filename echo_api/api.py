@@ -82,7 +82,7 @@ class BaseConnection:
         }
         if not key:
             for key, procedure in operations.items():
-                print(f'{key}: {procedure}')
+                print('{key}: {procedure}'.format(key=key, procedure=procedure))
             return
         return operations[key]
 
@@ -229,20 +229,20 @@ class Helpers:
         :param physician_id: (int) id of desired physician
         :return:
         """
-        qs = f"SELECT * FROM PhysicianDetail WHERE PhysicianID={physician_id}"
+        qs = "SELECT * FROM PhysicianDetail WHERE PhysicianID={physician_id}".format(physician_id=physician_id)
         schema_str = self.API_GeneralQuery(qs, "")
         physician = self._search_schema(schema_str, show_all=False, PhysicianID__ne=-1)
         if physician:
             return physician['EntityGuid']
         else:
-            raise APICallError(f'No Physicians matching id {physician_id}')
+            raise APICallError('No Physicians matching id {physician_id}'.format(physician_id=physician_id))
 
     @staticmethod
     def _indent(elem, level=0):
-        i = f"\n{level*'  '}"
+        i = "\n{indention}".format(indention=level*'  ')
         if len(elem):
             if not elem.text or not elem.text.strip():
-                elem.text = f"{i} "
+                elem.text = "{i} ".format(i=i)
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
             for elem in elem:
@@ -338,7 +338,7 @@ class EchoConnection(Helpers, BaseConnection):
             * HomeFax
         :return:
         """
-        args = ["Locations", "Provider", "PhysicianDetail_Create", 5, f"@OfficeID|{office_id}|int"]
+        args = ["Locations", "Provider", "PhysicianDetail_Create", 5, "@OfficeID|{office_id}|int".format(office_id=office_id)]
         result = self.API_TreeDataCommand(*args)
         if "Error|" in result:
             raise APICallError(result)
@@ -378,10 +378,10 @@ class EchoConnection(Helpers, BaseConnection):
             if i == 0:
                 new_table = ET.SubElement(schema_and_data[1], 'Table')
             new_attr = ET.SubElement(new_table, key)
-            new_attr.text = f'{value}'
+            new_attr.text = str(value)
         updated_schema = ET.tostring(schema_and_data)
         args = ["Locations", "Provider", "MedicalLicenses", "Symed",
-                f'@PhysicianID|{physician_id}|int', updated_schema]
+                '@PhysicianID|{physician_id}|int'.format(physician_id=physician_id), updated_schema]
         return self.API_UpdateData(*args)
 
     @handle_response
@@ -401,7 +401,7 @@ class EchoConnection(Helpers, BaseConnection):
         """
         required = {'Notes', 'Subject'}
         if required.intersection(kwargs.keys()) != required:
-            raise APICallError(f'You must add "Notes" and "Subject" to contact log entries.')
+            raise APICallError('You must add "Notes" and "Subject" to contact log entries.')
         guid = self._get_physician_guid(physician_id)
         log_data = self.get_contact_log(physician_id)
         schema_and_data = ET.fromstring(log_data)
@@ -414,10 +414,10 @@ class EchoConnection(Helpers, BaseConnection):
             if i == 0:
                 new_table = ET.SubElement(schema_and_data[1], 'Table')
             new_attr = ET.SubElement(new_table, key)
-            new_attr.text = f'{value}'
+            new_attr.text = str(value)
         updated_schema = ET.tostring(schema_and_data)
         args = ["Locations", "Provider", "CallLog", "Symed",
-                f'@EntityGuid|{guid}|guid', updated_schema]
+                '@EntityGuid|{guid}|guid'.format(guid=guid), updated_schema]
         return XMLSchema(self.API_UpdateData(*args)).search(CallID__ne='-1')
 
     @handle_response
@@ -430,7 +430,7 @@ class EchoConnection(Helpers, BaseConnection):
         """
         if not practice_id:
             raise APICallError("You must provide a practice_id with which to associate this office.")
-        args = ["Locations", "Office", "Offices_Create", 5, f"@PracticeID|{practice_id}|int"]
+        args = ["Locations", "Office", "Offices_Create", 5, "@PracticeID|{practice_id}|int".format(practice_id=practice_id)]
         return self.API_TreeDataCommand(*args)
 
     # TODO add edit_office method and update add_office method
@@ -450,10 +450,10 @@ class EchoConnection(Helpers, BaseConnection):
                 new_attr = ET.SubElement(schema_and_data[1][0], key)
                 new_attr.text = value
             else:
-                schema_and_data[1][0].find(key).text = f'{value}'
+                schema_and_data[1][0].find(key).text = str(value)
         updated_schema = ET.tostring(schema_and_data)
         args = ["Locations", "Provider", "PhysicianDetail",
-                "Symed", f"@PhysicianID|{physician_id}|int", updated_schema]
+                "Symed", "@PhysicianID|{physician_id}|int".format(physician_id=physician_id), updated_schema]
         return self.API_UpdateData(*args)
 
     @handle_response
@@ -467,7 +467,7 @@ class EchoConnection(Helpers, BaseConnection):
         if not (physician_id and office_id):
             raise APICallError("You must specify both the physician_id and office_id.")
         args = ["Locations", "Provider", "PhysicianDetail_Delete", 6,
-                f"@PhysicianID|{physician_id}|int@OfficeID|{office_id}|int"]
+                "@PhysicianID|{physician_id}|int@OfficeID|{office_id}|int".format(physician_id=physician_id, office_id=office_id)]
         return self.API_TreeDataCommand(*args)
 
     @handle_response
@@ -480,7 +480,7 @@ class EchoConnection(Helpers, BaseConnection):
         if not office_id:
             raise APICallError("You must specify the office_id.")
         args = ["Locations", "Office", "Offices_Delete", 6,
-                f"@OfficeID|{office_id}|int"]
+                "@OfficeID|{office_id}|int".format(office_id=office_id)]
         return self.API_TreeDataCommand(*args)
 
     @handle_response
@@ -502,7 +502,7 @@ class EchoConnection(Helpers, BaseConnection):
         :return:
         """
         if call_id:
-            kwarg['CallID'] = f'{call_id}'
+            kwarg['CallID'] = str(call_id)
         contact_log = self.get_contact_log(physician_id)
         guid = self._get_physician_guid(physician_id)
         schema_and_data = XMLSchema(contact_log)
@@ -510,17 +510,17 @@ class EchoConnection(Helpers, BaseConnection):
         if num_delete <= limit and num_delete != 0:
             schema_and_data.delete_elements_where(**kwarg)
             updated_schema_str = ET.tostring(schema_and_data.schema)
-            args = ["Locations", "Provider", "CallLog", "Symed", f'@EntityGuid|{guid}|guid',
+            args = ["Locations", "Provider", "CallLog", "Symed", '@EntityGuid|{guid}|guid'.format(guid=guid),
                     updated_schema_str]
             return self.API_UpdateData(*args)
 
         elif num_delete == 0:
-            raise APICallError(f'Could not find CallLog matching {kwarg}.')
+            raise APICallError('Could not find CallLog matching {kwarg}.'.format(kwarg=kwarg))
 
         else:
-            raise APICallError(f'Attempted to delete {num_delete} items, which exceeds the limit of {limit}. '
-                               f'If you wish to delete all {num_delete} items, you may set limit={num_delete} '
-                               'when calling this method.')
+            raise APICallError('Attempted to delete {num_delete} items, which exceeds the limit of {limit}.'
+                               ' If you wish to delete all {num_delete} items, you may set limit={num_delete} '
+                               'when calling this method.'.format(num_delete=num_delete, limit=limit))
 
     @handle_response
     def get_physician(self, physician_id):
@@ -529,7 +529,7 @@ class EchoConnection(Helpers, BaseConnection):
         :param physician_id: (int) id of physician whose data we desire
         :return: (xml string) whatever self.API_GetData(*args) returns
         """
-        args = ["PhysicianDetail", "Symed", f"@PhysicianID|{physician_id}|int"]
+        args = ["PhysicianDetail", "Symed", "@PhysicianID|{physician_id}|int".format(physician_id=physician_id)]
         return self.API_GetData(*args)
 
     @handle_response
@@ -539,7 +539,7 @@ class EchoConnection(Helpers, BaseConnection):
         :param office_id: (int) id of whichever office we desire
         :return: (xml string) whatever self.API_GetData(*args) returns
         """
-        args = ["Office", "Symed", f"@OfficeID|{office_id}|int"]
+        args = ["Office", "Symed", "@OfficeID|{office_id}|int".format(office_id=office_id)]
         return self.API_GetData(*args)
 
     @handle_response
@@ -549,7 +549,7 @@ class EchoConnection(Helpers, BaseConnection):
         :param physician_id: (int) id of whichever physician's licenses we desire
         :return: (xml string) whatever self.API_GetData(*args) returns
         """
-        args = ["MedicalLicenses", "Symed", f"@PhysicianID|{physician_id}|int"]
+        args = ["MedicalLicenses", "Symed", "@PhysicianID|{physician_id}|int".format(physician_id=physician_id)]
         return self.API_GetData(*args)
 
     @handle_response
@@ -560,7 +560,7 @@ class EchoConnection(Helpers, BaseConnection):
         :return:
         """
         guid = self._get_physician_guid(physician_id)
-        args = ["CallLog", "Symed", f'@EntityGuid|{guid}|guid']
+        args = ["CallLog", "Symed", '@EntityGuid|{guid}|guid'.format(guid=guid)]
         return self.API_GetData(*args)
 
     @handle_response
@@ -603,7 +603,7 @@ class EchoConnection(Helpers, BaseConnection):
         :return: xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info
         """
         guid = self._get_physician_guid(physician_id)
-        args = ["CallLog", "Symed", f'@EntityGuid|{guid}|guid']
+        args = ["CallLog", "Symed", '@EntityGuid|{guid}|guid'.format(guid=guid)]
         schema_str = self.API_GetData(*args)
         return self._search_schema(schema_str, show_all=show_all, CallID__ne=-1)
 
