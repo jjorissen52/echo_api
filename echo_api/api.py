@@ -23,8 +23,9 @@ class ImproperlyConfigured(BaseException):
 class APICallError(BaseException):
     pass
 
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRETS_LOCATION = os.environ.get('INTERFACE_CONF_FILE')
-SECRETS_LOCATION = os.path.abspath(SECRETS_LOCATION) if SECRETS_LOCATION else 'echo.conf'
+SECRETS_LOCATION = os.path.abspath(SECRETS_LOCATION) if SECRETS_LOCATION else os.path.join(PROJECT_DIR, 'echo.conf')
 
 
 def handle_response(method):
