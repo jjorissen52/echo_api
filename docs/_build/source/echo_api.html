@@ -193,12 +193,12 @@
 <li><strong>return_email</strong> – the return email address for the email.</li>
 <li><strong>password</strong> – the password for the new user (not the API user password).</li>
 <li><strong>parameters</strong> – the parameters for the provider to add.</li>
-<li><strong>security_groups</strong> – (list, string) contains a list (or string separated by vertical bars “|”) of security groups.</li>
+<li><strong>security_groups</strong> – (list, string) contains a list (or string separated by vertical bars ?|?) of security groups.</li>
 <li><strong>send_mail</strong> – (bool) do we send the registration mail?</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, Success, etc) and YYY is the specific description.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, Success, etc) and YYY is the specific description.</p>
 </td>
 </tr>
 </tbody>
@@ -218,7 +218,7 @@
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">usually XML with the requested results. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">usually XML with the requested results. If there was an error, a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
 </td>
 </tr>
 </tbody>
@@ -246,7 +246,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">usually the XML data. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">usually the XML data. If there was an error, a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</td>
 </tr>
 </tbody>
 </table>
@@ -265,7 +265,7 @@
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">if successful, a string containing the session id, in the format “SessionID|XXX” where XXX corresponds to the session id. If not successful, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">if successful, a string containing the session id, in the format ?SessionID|XXX? where XXX corresponds to the session id. If not successful, a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
 </td>
 </tr>
 </tbody>
@@ -279,7 +279,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a string in the format “XXX|YYY” where XXX is a general description (Success, Error, Denied, etc) and YYY is the specific description.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a string in the format ?XXX|YYY? where XXX is a general description (Success, Error, Denied, etc) and YYY is the specific description.</td>
 </tr>
 </tbody>
 </table>
@@ -288,21 +288,10 @@
 <dl class="method">
 <dt id="echo_api.api.BaseConnection.API_SelectParameters">
 <code class="descname">API_SelectParameters</code><span class="sig-paren">(</span><em>screen_name</em>, <em>name_space='Symed'</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.API_SelectParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>screen_name</strong> – (string) name of the screen</li>
-<li><strong>name_space</strong> – (string) namespace that the screen belongs to</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(string) usually a string in the form &#64;name|value|type, where the name is the parameter name, value is the value of the parameter and type specifies the type (int, string, bool, decimal). There may be multiple and not all values will be filled in. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dd><p>k
+:param screen_name: (string) name of the screen
+:param name_space: (string) namespace that the screen belongs to
+:return: (string) usually a string in the form &#64;name|value|type, where the name is the parameter name, value is the value of the parameter and type specifies the type (int, string, bool, decimal). There may be multiple and not all values will be filled in. If there was an error, a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
 </dd></dl>
 
 <dl class="method">
@@ -326,8 +315,8 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>tree_name</strong> – the name of tree (for providers, this is “Locations”)</li>
-<li><strong>level_name</strong> – the name of the level (for providers, this is “Providers”)</li>
+<li><strong>tree_name</strong> – the name of tree (for providers, this is ?Locations?)</li>
+<li><strong>level_name</strong> – the name of the level (for providers, this is ?Providers?)</li>
 <li><strong>stored_proc</strong> – the stored procedure that will perform the operation</li>
 </ul>
 </td>
@@ -340,7 +329,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">usually a string in the format of name|value|type where the name is the parameter name, value is the parameter value and type is the parameter type. If this format is returned, the parameter can be used directly with API_GetData to retrieve the newly added item. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">usually a string in the format of name|value|type where the name is the parameter name, value is the parameter value and type is the parameter type. If this format is returned, the parameter can be used directly with API_GetData to retrieve the newly added item. If there was an error, a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</td>
 </tr>
 </tbody>
 </table>
@@ -354,16 +343,16 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tree_name</strong> – the name of tree (for providers, this is “Locations”)</li>
-<li><strong>level_name</strong> – the name of the level (for providers, this is “Providers”)</li>
+<li><strong>tree_name</strong> – the name of tree (for providers, this is ?Locations?)</li>
+<li><strong>level_name</strong> – the name of the level (for providers, this is ?Providers?)</li>
 <li><strong>screen_name</strong> – name of the screen.</li>
-<li><strong>name_space</strong> – the name space that the screen belongs to. Currently always “Symed”.</li>
+<li><strong>name_space</strong> – the name space that the screen belongs to. Currently always ?Symed?.</li>
 <li><strong>parameters</strong> – the parameters for the select statement. It is possible to get the names of the parameters from the API_SelectParameters function, the values will need to be supplied by the programmer.</li>
 <li><strong>dsXML</strong> – the XML data containing the updates.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">usually the XML data. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">usually the XML data. If there was an error, a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
 </td>
 </tr>
 </tbody>

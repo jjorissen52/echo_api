@@ -99,7 +99,7 @@ use:
 
 
 If you see a string like the one above, it means that a connection was
-successfully established and you've got the hard part done.
+successfully established and you've got the hard part done
 
 .. code:: ipython3
 
