@@ -4,7 +4,7 @@ Welcome to ``echo_api``'s documentation!
 
 This project is a work in progress, and contributions are encouraged. If
 you have questions feels free to contact me at
-`jjorissen52@gmail.com <#jjorissen52@gmail.com>`__
+`jjorissen52@gmail.com <jjorissen52@gmail.com>`__
 
 Installation
 ============
@@ -118,4 +118,5 @@ Usage
 =====
 
 The ``BaseConnection`` object has all of the API definitions provided by
-the WSDL file. The API documentation can be found at read the docs.
+the WSDL file. The API documentation can be found at
+`read the docs. <http://echo-api.readthedocs.io/en/latest/index.html>`__
