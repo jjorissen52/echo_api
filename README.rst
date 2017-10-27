@@ -21,7 +21,7 @@ Secrets
 ``echo.conf`` that is expected by default in your working directory.
 ``echo.conf`` should look like:
 
-.. code:: ipython3
+.. sourcecode:: python
 
     [echo]
     username = UserName
@@ -33,7 +33,7 @@ If you want ``echo.conf`` to be somewhere other than your project
 directory, you will need to set it the location using an environment
 variable.
 
-.. code:: ipython3
+.. sourcecode:: python
 
     # Linux
     export INTERFACE_CONF_FILE=/absolute/path/to/conf_file.conf #name doesn't matter
@@ -59,7 +59,7 @@ https://cloud.echooneappcloud.com/yourorganization/OneAppWebService.svc?singleWs
 Copy and paste the XML response into an XML file (``wsdl.xml``) in your
 project directory and scroll all the way to the bottom until you see:
 
-.. code:: ipython3
+.. sourcecode:: python
 
     <wsdl:port name="BasicHttpBinding_OneAppWebService_SSL" binding="tns:BasicHttpBinding_OneAppWebService_SSL">
         <soap:address location="https://eoaapp0.echooneapp.com/YourOrganization/OneAppWebService.svc"/>
@@ -68,13 +68,13 @@ project directory and scroll all the way to the bottom until you see:
 
 You will want to change
 
-.. code:: ipython3
+.. sourcecode:: python
 
     <soap:address location="https://eoaapp0.echooneapp.com/YourOrganization/OneAppWebService.svc"/>
 
 to
 
-.. code:: ipython3
+.. sourcecode:: python
 
     <soap:address location="https://cloud.echooneappcloud.com/yourorganization/OneAppWebService"/>
 
@@ -82,7 +82,7 @@ Once you've set up your wsdl and secrets files, test your connection.
 For a secrets file that will remain in your project directory, simply
 use:
 
-.. code:: ipython3
+.. sourcecode:: python
 
     from echo_api import api
     # Connection() will log you in if everything is correctly configured.
@@ -99,9 +99,9 @@ use:
 
 
 If you see a string like the one above, it means that a connection was
-successfully established and you've got the hard part done
+successfully established and you've got the hard part done...
 
-.. code:: ipython3
+.. sourcecode:: python
 
     connection.API_Logout()
 

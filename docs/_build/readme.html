@@ -174,7 +174,7 @@ you have questions feels free to contact me at
 <p><code class="docutils literal"><span class="pre">echo_api</span></code> is configured to take credentials from a file named
 <code class="docutils literal"><span class="pre">echo.conf</span></code> that is expected by default in your working directory.
 <code class="docutils literal"><span class="pre">echo.conf</span></code> should look like:</p>
-<div class="code ipython3 highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">echo</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">echo</span><span class="p">]</span>
 <span class="n">username</span> <span class="o">=</span> <span class="n">UserName</span>
 <span class="n">password</span> <span class="o">=</span> <span class="n">Password</span>
 <span class="n">wsdl_location</span> <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">wsdl</span><span class="o">.</span><span class="n">xml</span>
@@ -184,7 +184,7 @@ you have questions feels free to contact me at
 <p>If you want <code class="docutils literal"><span class="pre">echo.conf</span></code> to be somewhere other than your project
 directory, you will need to set it the location using an environment
 variable.</p>
-<div class="code ipython3 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Linux</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Linux</span>
 <span class="n">export</span> <span class="n">INTERFACE_CONF_FILE</span><span class="o">=/</span><span class="n">absolute</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">conf_file</span><span class="o">.</span><span class="n">conf</span> <span class="c1">#name doesn&#39;t matter</span>
 
 <span class="c1"># Or set in Python before you import echo_api</span>
@@ -205,24 +205,24 @@ organization):</p>
 <p><a class="reference external" href="https://cloud.echooneappcloud.com/yourorganization/OneAppWebService.svc?singleWsdl">https://cloud.echooneappcloud.com/yourorganization/OneAppWebService.svc?singleWsdl</a></p>
 <p>Copy and paste the XML response into an XML file (<code class="docutils literal"><span class="pre">wsdl.xml</span></code>) in your
 project directory and scroll all the way to the bottom until you see:</p>
-<div class="code ipython3 highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">wsdl</span><span class="p">:</span><span class="n">port</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BasicHttpBinding_OneAppWebService_SSL&quot;</span> <span class="n">binding</span><span class="o">=</span><span class="s2">&quot;tns:BasicHttpBinding_OneAppWebService_SSL&quot;</span><span class="o">&gt;</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">wsdl</span><span class="p">:</span><span class="n">port</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BasicHttpBinding_OneAppWebService_SSL&quot;</span> <span class="n">binding</span><span class="o">=</span><span class="s2">&quot;tns:BasicHttpBinding_OneAppWebService_SSL&quot;</span><span class="o">&gt;</span>
     <span class="o">&lt;</span><span class="n">soap</span><span class="p">:</span><span class="n">address</span> <span class="n">location</span><span class="o">=</span><span class="s2">&quot;https://eoaapp0.echooneapp.com/YourOrganization/OneAppWebService.svc&quot;</span><span class="o">/&gt;</span>
     <span class="o">&lt;/</span><span class="n">wsdl</span><span class="p">:</span><span class="n">port</span><span class="o">&gt;</span>
 <span class="o">&lt;/</span><span class="n">wsdl</span><span class="p">:</span><span class="n">service</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>You will want to change</p>
-<div class="code ipython3 highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">soap</span><span class="p">:</span><span class="n">address</span> <span class="n">location</span><span class="o">=</span><span class="s2">&quot;https://eoaapp0.echooneapp.com/YourOrganization/OneAppWebService.svc&quot;</span><span class="o">/&gt;</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">soap</span><span class="p">:</span><span class="n">address</span> <span class="n">location</span><span class="o">=</span><span class="s2">&quot;https://eoaapp0.echooneapp.com/YourOrganization/OneAppWebService.svc&quot;</span><span class="o">/&gt;</span>
 </pre></div>
 </div>
 <p>to</p>
-<div class="code ipython3 highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">soap</span><span class="p">:</span><span class="n">address</span> <span class="n">location</span><span class="o">=</span><span class="s2">&quot;https://cloud.echooneappcloud.com/yourorganization/OneAppWebService&quot;</span><span class="o">/&gt;</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">soap</span><span class="p">:</span><span class="n">address</span> <span class="n">location</span><span class="o">=</span><span class="s2">&quot;https://cloud.echooneappcloud.com/yourorganization/OneAppWebService&quot;</span><span class="o">/&gt;</span>
 </pre></div>
 </div>
 <p>Once you’ve set up your wsdl and secrets files, test your connection.
 For a secrets file that will remain in your project directory, simply
 use:</p>
-<div class="code ipython3 highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">echo_api</span> <span class="k">import</span> <span class="n">api</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">echo_api</span> <span class="kn">import</span> <span class="n">api</span>
 <span class="c1"># Connection() will log you in if everything is correctly configured.</span>
 <span class="n">connection</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">BaseConnection</span><span class="p">()</span>
 <span class="n">connection</span><span class="o">.</span><span class="n">session_id</span>
@@ -232,8 +232,8 @@ use:</p>
 </pre></div>
 </div>
 <p>If you see a string like the one above, it means that a connection was
-successfully established and you’ve got the hard part done</p>
-<div class="code ipython3 highlight-default"><div class="highlight"><pre><span></span><span class="n">connection</span><span class="o">.</span><span class="n">API_Logout</span><span class="p">()</span>
+successfully established and you’ve got the hard part done…</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">connection</span><span class="o">.</span><span class="n">API_Logout</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;LoggedOut|kathleen.reynolds&#39;</span>
