@@ -1,3 +1,4 @@
+# https://samnicholls.net/2016/06/15/how-to-sphinx-readthedocs/
 cd docs
 # delete rst in source/
 sphinx-apidoc -o source/ ../echo_api
