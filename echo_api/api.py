@@ -70,10 +70,10 @@ class BaseConnection:
     BaseConnection has the core functionality required to interact with Echo's SOAP API.
     """
 
-    def get_operations(self, key=""):
+    def get_operations(self, key=None):
         """
 
-        :param key: key corresponding to a stored procedure. If empty will show all stored procedures
+        :param key: (str) key corresponding to a stored procedure. If empty will show all stored procedures
         :return: integer corresponding to stored procedure
         """
         operations = {
@@ -89,7 +89,7 @@ class BaseConnection:
 
     def API_SelectParameters(self, screen_name, name_space='Symed'):
         """
-        k
+
         :param screen_name: (string) name of the screen
         :param name_space: (string) namespace that the screen belongs to
         :return: (string) usually a string in the form @name|value|type, where the name is the parameter name, value is the value of the parameter and type specifies the type (int, string, bool, decimal). There may be multiple and not all values will be filled in. If there was an error, a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
@@ -110,9 +110,7 @@ class BaseConnection:
 
         :param screen_name: the session id returned from a login.
         :param name_space: name of the screen
-        :param parameters: the parameters for the select statement. It is possible to get the names of the parameters from the API_SelectParameters function, the values will need to
-        be supplied by the programmer.
-
+        :param parameters: the parameters for the select statement. It is possible to get the names of the parameters from the API_SelectParameters function, the values will need to be supplied by the programmer.
         :return: usually the XML data. If there was an error, a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
         """
         return self.client.service.API_GetData(self.session_id, screen_name, name_space, parameters)
@@ -136,8 +134,7 @@ class BaseConnection:
 
         :param tree_name: the name of tree (for providers, this is ?Locations?)
         :param level_name: the name of the level (for providers, this is ?Providers?)
-        :param stored_proc: the stored procedure that will perform the operation
-        (for adding providers, this is PhysicianDetail_Create)
+        :param stored_proc: the stored procedure that will perform the operation (for adding providers, this is PhysicianDetail_Create)
         :param operation: an integer that specifies the operation (0, 5 or 6) is (execute, add, delete). you can run self.get_operation() (self.get_operation('add') for example) to get the integer corresponding to your stored procedure.
 
         :return: usually a string in the format of name|value|type where the name is the parameter name, value is the parameter value and type is the parameter type. If this format is returned, the parameter can be used directly with API_GetData to retrieve the newly added item. If there was an error, a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
@@ -426,6 +423,7 @@ class EchoConnection(Helpers, BaseConnection):
         """
         This method does not yet have the capability to modify the newly created office; There does not yet exist an
         edit_office method.
+
         :param practice_id: (int) practice with which to associate this new office
         :return:
         """
@@ -527,6 +525,7 @@ class EchoConnection(Helpers, BaseConnection):
     def get_physician(self, physician_id):
         """
         equivalent of self.API_GetData(*args) for the indicated physician
+
         :param physician_id: (int) id of physician whose data we desire
         :return: (xml string) whatever self.API_GetData(*args) returns
         """
@@ -537,6 +536,7 @@ class EchoConnection(Helpers, BaseConnection):
     def get_office(self, office_id):
         """
         equivalent of self.API_GetData(*args) for the indicated office
+
         :param office_id: (int) id of whichever office we desire
         :return: (xml string) whatever self.API_GetData(*args) returns
         """
@@ -547,6 +547,7 @@ class EchoConnection(Helpers, BaseConnection):
     def get_medical_licenses(self, physician_id):
         """
         equivalent of self.API_GetData(*args) for the medical licenses of the indicated physician
+
         :param physician_id: (int) id of whichever physician's licenses we desire
         :return: (xml string) whatever self.API_GetData(*args) returns
         """
@@ -557,6 +558,7 @@ class EchoConnection(Helpers, BaseConnection):
     def get_contact_log(self, physician_id):
         """
         equivalent of self.API_GetData(*args) for the contact logs of the indicated physician
+
         :param physician_id: (int) id of whichever physician's logs we desire
         :return:
         """
