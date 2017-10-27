@@ -1,0 +1,934 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>echo_api package &mdash; echo_api  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="echo_api  documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> echo_api
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Welcome to <code class="docutils literal"><span class="pre">echo_api</span></code>’s documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#configuration">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#secrets">Secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#soap-api-wsdl-definition">SOAP API WSDL Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#usage">Usage</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">echo_api</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>echo_api package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/echo_api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="echo-api-package">
+<h1>echo_api package<a class="headerlink" href="#echo-api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-echo_api.api">
+<span id="echo-api-api-module"></span><h2>echo_api.api module<a class="headerlink" href="#module-echo_api.api" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="echo_api.api.APICallError">
+<em class="property">exception </em><code class="descclassname">echo_api.api.</code><code class="descname">APICallError</code><a class="headerlink" href="#echo_api.api.APICallError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">BaseException</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="echo_api.api.APITestFailError">
+<em class="property">exception </em><code class="descclassname">echo_api.api.</code><code class="descname">APITestFailError</code><a class="headerlink" href="#echo_api.api.APITestFailError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">BaseException</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="echo_api.api.BaseConnection">
+<em class="property">class </em><code class="descclassname">echo_api.api.</code><code class="descname">BaseConnection</code><span class="sig-paren">(</span><em>settings=&lt;echo_api.api.Settings object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>BaseConnection has the core functionality required to interact with Echo’s SOAP API.</p>
+<dl class="method">
+<dt id="echo_api.api.BaseConnection.API_CreateNoPenUser">
+<code class="descname">API_CreateNoPenUser</code><span class="sig-paren">(</span><em>email</em>, <em>body</em>, <em>subject</em>, <em>return_email</em>, <em>password</em>, <em>parameters</em>, <em>security_groups</em>, <em>send_mail</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.API_CreateNoPenUser" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>email</strong> – the email address, this will also be the security login.</li>
+<li><strong>body</strong> – body of the email (usually a string built up of other information, like name, email and password.</li>
+<li><strong>subject</strong> – subject of the email.</li>
+<li><strong>return_email</strong> – the return email address for the email.</li>
+<li><strong>password</strong> – the password for the new user (not the API user password).</li>
+<li><strong>parameters</strong> – the parameters for the provider to add.</li>
+<li><strong>security_groups</strong> – (list, string) contains a list (or string separated by vertical bars “|”) of security groups.</li>
+<li><strong>send_mail</strong> – (bool) do we send the registration mail?</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, Success, etc) and YYY is the specific description.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.BaseConnection.API_GeneralQuery">
+<code class="descname">API_GeneralQuery</code><span class="sig-paren">(</span><em>query</em>, <em>parameters=''</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.API_GeneralQuery" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>query</strong> – the SQL-style query to be run</li>
+<li><strong>parameters</strong> – optional set of parameters in form of &#64;name|value|type, where the name is the parameter name, value is the value of the parameter and type specifies the type (int, string, guid, decimal).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">usually XML with the requested results. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.BaseConnection.API_GetData">
+<code class="descname">API_GetData</code><span class="sig-paren">(</span><em>screen_name</em>, <em>name_space</em>, <em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.API_GetData" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>screen_name</strong> – the session id returned from a login.</li>
+<li><strong>name_space</strong> – name of the screen</li>
+<li><strong>parameters</strong> – the parameters for the select statement. It is possible to get the names of the parameters from the API_SelectParameters function, the values will need to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>be supplied by the programmer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">usually the XML data. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.BaseConnection.API_Login">
+<code class="descname">API_Login</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.API_Login" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> – the base user name. No domain, actual login id, not the display name.</li>
+<li><strong>password</strong> – the password corresponding to the user name.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">if successful, a string containing the session id, in the format “SessionID|XXX” where XXX corresponds to the session id. If not successful, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.BaseConnection.API_Logout">
+<code class="descname">API_Logout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.API_Logout" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a string in the format “XXX|YYY” where XXX is a general description (Success, Error, Denied, etc) and YYY is the specific description.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.BaseConnection.API_SelectParameters">
+<code class="descname">API_SelectParameters</code><span class="sig-paren">(</span><em>screen_name</em>, <em>name_space='Symed'</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.API_SelectParameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>screen_name</strong> – (string) name of the screen</li>
+<li><strong>name_space</strong> – (string) namespace that the screen belongs to</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(string) usually a string in the form &#64;name|value|type, where the name is the parameter name, value is the value of the parameter and type specifies the type (int, string, bool, decimal). There may be multiple and not all values will be filled in. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.BaseConnection.API_Test">
+<code class="descname">API_Test</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.API_Test" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">“Success|This message from WCF Service. You are connected!” or some kind of connection error probably</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.BaseConnection.API_TreeDataCommand">
+<code class="descname">API_TreeDataCommand</code><span class="sig-paren">(</span><em>tree_name</em>, <em>level_name</em>, <em>stored_proc</em>, <em>operation</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.API_TreeDataCommand" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tree_name</strong> – the name of tree (for providers, this is “Locations”)</li>
+<li><strong>level_name</strong> – the name of the level (for providers, this is “Providers”)</li>
+<li><strong>stored_proc</strong> – the stored procedure that will perform the operation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>(for adding providers, this is PhysicianDetail_Create)
+:param operation: an integer that specifies the operation (0, 5 or 6) is (execute, add, delete). you can run self.get_operation() (self.get_operation(‘add’) for example) to get the integer corresponding to your stored procedure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">usually a string in the format of name|value|type where the name is the parameter name, value is the parameter value and type is the parameter type. If this format is returned, the parameter can be used directly with API_GetData to retrieve the newly added item. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.BaseConnection.API_UpdateData">
+<code class="descname">API_UpdateData</code><span class="sig-paren">(</span><em>tree_name</em>, <em>level_name</em>, <em>screen_name</em>, <em>name_space</em>, <em>parameters</em>, <em>dsXML</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.API_UpdateData" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree_name</strong> – the name of tree (for providers, this is “Locations”)</li>
+<li><strong>level_name</strong> – the name of the level (for providers, this is “Providers”)</li>
+<li><strong>screen_name</strong> – name of the screen.</li>
+<li><strong>name_space</strong> – the name space that the screen belongs to. Currently always “Symed”.</li>
+<li><strong>parameters</strong> – the parameters for the select statement. It is possible to get the names of the parameters from the API_SelectParameters function, the values will need to be supplied by the programmer.</li>
+<li><strong>dsXML</strong> – the XML data containing the updates.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">usually the XML data. If there was an error, a string in the format “XXX|YYY” where XXX is a general description (Error, Denied, etc) and YYY is the specific description.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.BaseConnection.get_operations">
+<code class="descname">get_operations</code><span class="sig-paren">(</span><em>key=''</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.BaseConnection.get_operations" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – key corresponding to a stored procedure. If empty will show all stored procedures</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">integer corresponding to stored procedure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="echo_api.api.EchoConnection">
+<em class="property">class </em><code class="descclassname">echo_api.api.</code><code class="descname">EchoConnection</code><span class="sig-paren">(</span><em>settings=&lt;echo_api.api.Settings object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#echo_api.api.Helpers" title="echo_api.api.Helpers"><code class="xref py py-class docutils literal"><span class="pre">echo_api.api.Helpers</span></code></a>, <a class="reference internal" href="#echo_api.api.BaseConnection" title="echo_api.api.BaseConnection"><code class="xref py py-class docutils literal"><span class="pre">echo_api.api.BaseConnection</span></code></a></p>
+<p>EchoConnection has numerous methods to facilitate the usage of the BaseConnection class.</p>
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.add_contact_log_entry">
+<code class="descname">add_contact_log_entry</code><span class="sig-paren">(</span><em>physician_id</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.add_contact_log_entry" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>physician_id</strong> – id of the physician to whom the note will be attached</li>
+<li><strong>kwargs</strong> – <p>keyword arguments corresponding to fields added to the log</p>
+<ul>
+<li>FollowUpCompleted (boolean string) :: true/false</li>
+<li>ContactLogTypeId (int string)</li>
+<li>Notes (string)</li>
+<li>Subject (string)</li>
+<li>ContactID (int string)</li>
+<li>ContactDate (isoformat datetime string YYYY-MM-DDTHH:mm:ss)</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.add_medical_license">
+<code class="descname">add_medical_license</code><span class="sig-paren">(</span><em>physician_id</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.add_medical_license" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>physician_id</strong> – (int) physician to whom to medical license belongs</li>
+<li><strong>kwargs</strong> – <p>(kwargs) values that you want the new physician to have (ex:</p>
+<ul>
+<li>LicenseStateOfIssue</li>
+<li>LicenseNumber</li>
+<li>LicenseDateOfIssue</li>
+<li>LicenseExpirationDate</li>
+<li>LicenseType</li>
+<li>Notified</li>
+<li>Active</li>
+<li>TimeEdited</li>
+<li>DateUpdated</li>
+<li>LicenseTypeSpecialty</li>
+<li>ProviderTypeID</li>
+<li>LicenseStatus</li>
+<li>LicenseRenewalDate</li>
+<li>LicenseCountry</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.add_office">
+<code class="descname">add_office</code><span class="sig-paren">(</span><em>practice_id=''</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.add_office" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method does not yet have the capability to modify the newly created office; There does not yet exist an
+edit_office method.
+:param practice_id: (int) practice with which to associate this new office
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.add_physician">
+<code class="descname">add_physician</code><span class="sig-paren">(</span><em>office_id</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.add_physician" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>office_id</strong> – (int) office that the new physician belongs to</li>
+<li><strong>kwargs</strong> – <p>(kwargs) values that you want the new physician to have, ex: LastName=”Jones”</p>
+<ul>
+<li>LastName</li>
+<li>FirstName</li>
+<li>DegreeID</li>
+<li>EMail</li>
+<li>Language</li>
+<li>TimeEdited</li>
+<li>PhysicianPhoto</li>
+<li>DoctorNumber</li>
+<li>Inactive</li>
+<li>DateAdded</li>
+<li>ProviderTypeID</li>
+<li>DateUpdated</li>
+<li>BirthState</li>
+<li>EmailAllowed</li>
+<li>AlternateEmailAllowed</li>
+<li>CAQHPassword</li>
+<li>MiddleName</li>
+<li>Sex</li>
+<li>MaritalStatus</li>
+<li>SpouseName</li>
+<li>HomeAddress</li>
+<li>HomeCity</li>
+<li>HomeState</li>
+<li>HomeZip</li>
+<li>SSN</li>
+<li>DateOfBirth</li>
+<li>BirthCity</li>
+<li>Citizenship</li>
+<li>Title</li>
+<li>MobilePhone</li>
+<li>NPI</li>
+<li>StreetName</li>
+<li>StreetNumber</li>
+<li>DriverLicenseNumber</li>
+<li>DriverLicenseExpiration</li>
+<li>DriverLicenseState</li>
+<li>HomePhone</li>
+<li>BirthCountry</li>
+<li>HomeCountry</li>
+<li>CAQHID</li>
+<li>PhysicianPhotoSecondary</li>
+<li>UPIN</li>
+<li>MaidenName</li>
+<li>HomeAddress2</li>
+<li>VISAStatus</li>
+<li>OtherNameStart</li>
+<li>OtherNameStop</li>
+<li>AlternateEmail</li>
+<li>VisaNumber</li>
+<li>PreferredContactMethod</li>
+<li>Beeper</li>
+<li>BirthCounty</li>
+<li>HomeCounty</li>
+<li>SuffixName</li>
+<li>Medicare</li>
+<li>AlliedHealthProfessional</li>
+<li>EnrollmentStatusID</li>
+<li>CAQHLogin</li>
+<li>HomeFax</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.delete_contact_log_entry">
+<code class="descname">delete_contact_log_entry</code><span class="sig-paren">(</span><em>physician_id</em>, <em>call_id=''</em>, <em>limit=2</em>, <em>**kwarg</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.delete_contact_log_entry" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>physician_id</strong> – (int) id of physician that the log entry belongs to</li>
+<li><strong>call_id</strong> – (int, optional) id of the call log entry to be deleted</li>
+<li><strong>limit</strong> – (int) limits the number of logs to be deleted so you don’t accidentally delete more than you meant to</li>
+<li><strong>kwarg</strong> – <p>(kwarg) search term that tells the XMLSchema object which items need to be deleted, allows almost all default python comparison methods (__lt__, __gt__, __ge__, __ne__, __eq__, etc.), though not all of them are guaranteed to work in every situation. This feature might break with some searches.</p>
+<ul>
+<li><dl class="first docutils">
+<dt>connection.delete_contact_log_entry(1, call_id=2) will delete the call log with CallID=2</dt>
+<dd><ul class="first last">
+<li>connection.delete_contact_log_entry(1, CallID=2) will do the same</li>
+<li>connection.delete_contact_log_entry(1, CallID__eq=2) will also</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li>connection.delete_contact_log_entry(1, limit=20, CallID__ne=’-1’) will delete up to 20 call log entries where the CallID is not -1 (so it deletes all of them)</li>
+<li>connection.delete_contact_log_entry(1, TimeEdited__lt=&lt;insert isoformat timestampe&gt;) will fail to delete the call log with edited before the date unless there is only one that matches the query</li>
+<li>note that only CallID and TimeEdited searches will ever work due to a combination of factors.</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.delete_office">
+<code class="descname">delete_office</code><span class="sig-paren">(</span><em>office_id=''</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.delete_office" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>office_id</strong> – (int) id of office to be deleted</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.delete_physician">
+<code class="descname">delete_physician</code><span class="sig-paren">(</span><em>physician_id=''</em>, <em>office_id=''</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.delete_physician" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>physician_id</strong> – (int) id of physician that will be deleted</li>
+<li><strong>office_id</strong> – (int) id of office that physician is being removed from. will delete physician if it’s the last office</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.edit_physician">
+<code class="descname">edit_physician</code><span class="sig-paren">(</span><em>physician_id</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.edit_physician" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>physician_id</strong> – (int) id of physician to be edited</li>
+<li><strong>kwargs</strong> – <ul>
+<li>see add_physician for full list of kwargs</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.get_contact_log">
+<code class="descname">get_contact_log</code><span class="sig-paren">(</span><em>physician_id</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.get_contact_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>equivalent of self.API_GetData(<a href="#id1"><span class="problematic" id="id2">*</span></a>args) for the contact logs of the indicated physician
+:param physician_id: (int) id of whichever physician’s logs we desire
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.get_medical_licenses">
+<code class="descname">get_medical_licenses</code><span class="sig-paren">(</span><em>physician_id</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.get_medical_licenses" title="Permalink to this definition">¶</a></dt>
+<dd><p>equivalent of self.API_GetData(<a href="#id3"><span class="problematic" id="id4">*</span></a>args) for the medical licenses of the indicated physician
+:param physician_id: (int) id of whichever physician’s licenses we desire
+:return: (xml string) whatever self.API_GetData(<a href="#id5"><span class="problematic" id="id6">*</span></a>args) returns</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.get_office">
+<code class="descname">get_office</code><span class="sig-paren">(</span><em>office_id</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.get_office" title="Permalink to this definition">¶</a></dt>
+<dd><p>equivalent of self.API_GetData(<a href="#id7"><span class="problematic" id="id8">*</span></a>args) for the indicated office
+:param office_id: (int) id of whichever office we desire
+:return: (xml string) whatever self.API_GetData(<a href="#id9"><span class="problematic" id="id10">*</span></a>args) returns</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.get_physician">
+<code class="descname">get_physician</code><span class="sig-paren">(</span><em>physician_id</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.get_physician" title="Permalink to this definition">¶</a></dt>
+<dd><p>equivalent of self.API_GetData(<a href="#id11"><span class="problematic" id="id12">*</span></a>args) for the indicated physician
+:param physician_id: (int) id of physician whose data we desire
+:return: (xml string) whatever self.API_GetData(<a href="#id13"><span class="problematic" id="id14">*</span></a>args) returns</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.show_contact_logs">
+<code class="descname">show_contact_logs</code><span class="sig-paren">(</span><em>show_all=True</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.show_contact_logs" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>show_all</strong> – (boolean) if True shows all, if False shows last created</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.show_medical_licenses">
+<code class="descname">show_medical_licenses</code><span class="sig-paren">(</span><em>show_all=True</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.show_medical_licenses" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>show_all</strong> – (boolean) if True shows all, if False shows last created</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.show_office">
+<code class="descname">show_office</code><span class="sig-paren">(</span><em>office_id</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.show_office" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>office_id</strong> – (int) id of desired office</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.show_offices">
+<code class="descname">show_offices</code><span class="sig-paren">(</span><em>show_all=True</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.show_offices" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>show_all</strong> – (boolean) if True shows all, if False shows last created</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.show_physician">
+<code class="descname">show_physician</code><span class="sig-paren">(</span><em>physician_id</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.show_physician" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>physician_id</strong> – (int) id of desired physician</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">xmlmanip.InnerSchemaDict (can be used as dict) of info</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.show_physician_contact_log">
+<code class="descname">show_physician_contact_log</code><span class="sig-paren">(</span><em>physician_id</em>, <em>show_all=True</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.show_physician_contact_log" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>physician_id</strong> – (int) id of desired physician</li>
+<li><strong>show_all</strong> – (boolean) if True shows all, if False shows last created</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.show_physician_medical_licenses">
+<code class="descname">show_physician_medical_licenses</code><span class="sig-paren">(</span><em>physician_id</em>, <em>show_all=True</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.show_physician_medical_licenses" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>physician_id</strong> – (int) id of desired physician</li>
+<li><strong>show_all</strong> – (boolean) if True shows all, if False shows last created</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.show_physicians">
+<code class="descname">show_physicians</code><span class="sig-paren">(</span><em>show_all=True</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.show_physicians" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>show_all</strong> – (boolean) if True shows all, if False shows last created</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="echo_api.api.EchoConnection.show_practices">
+<code class="descname">show_practices</code><span class="sig-paren">(</span><em>show_all=True</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.EchoConnection.show_practices" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>show_all</strong> – (boolean) if True shows all, if False shows last created</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">xmlmanip.InnerSchemaDict or xmlmanip.SearchableList (can be used as dict) of info</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="echo_api.api.Helpers">
+<em class="property">class </em><code class="descclassname">echo_api.api.</code><code class="descname">Helpers</code><a class="headerlink" href="#echo_api.api.Helpers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Helper Methods</p>
+<dl class="class">
+<dt id="echo_api.api.Helpers.Meta">
+<em class="property">class </em><code class="descname">Meta</code><a class="headerlink" href="#echo_api.api.Helpers.Meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="echo_api.api.Helpers.Meta.abstract">
+<code class="descname">abstract</code><em class="property"> = True</em><a class="headerlink" href="#echo_api.api.Helpers.Meta.abstract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="echo_api.api.ImproperlyConfigured">
+<em class="property">exception </em><code class="descclassname">echo_api.api.</code><code class="descname">ImproperlyConfigured</code><a class="headerlink" href="#echo_api.api.ImproperlyConfigured" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">BaseException</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="echo_api.api.Settings">
+<em class="property">class </em><code class="descclassname">echo_api.api.</code><code class="descname">Settings</code><span class="sig-paren">(</span><em>secrets_location='/home/jjorissen/Projects/echo_api/echo.conf'</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.Settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class only exists to collect settings for the BaseConnection object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="echo_api.api.handle_response">
+<code class="descclassname">echo_api.api.</code><code class="descname">handle_response</code><span class="sig-paren">(</span><em>method</em><span class="sig-paren">)</span><a class="headerlink" href="#echo_api.api.handle_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="echo-api-tests-module">
+<h2>echo_api.tests module<a class="headerlink" href="#echo-api-tests-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-echo_api">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-echo_api" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, JP.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
