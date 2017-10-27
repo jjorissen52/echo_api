@@ -1,0 +1,4 @@
+cd docs
+# delete rst in source/
+sphinx-apidoc -o source/ ../echo_api
+sphinx-build -b html -E . _build
