@@ -1,5 +1,5 @@
 import configparser
-import os, sys
+import os, sys, inspect
 from datetime import datetime
 
 from requests import Session
@@ -8,7 +8,8 @@ from functools import wraps
 from zeep import Client
 from zeep.transports import Transport
 
-from xmlmanip import XMLSchema
+from xmlmanip import XMLSchema, print_xml
+from . wrappers import wrap_methods
 
 import xml.etree.ElementTree as ET
 
@@ -40,13 +41,22 @@ def handle_response(method):
     return _impl
 
 
+def keep_warm(method):
+    @wraps(method)
+    def _impl(self, *method_args, **method_kwargs):
+        self.__init__(self.settings)
+        response = method(self, *method_args, **method_kwargs)
+        return response
+    return _impl
+
+
 class Settings:
     """
     This class only exists to collect settings for the BaseConnection object.
     """
 
     def __init__(self, secrets_location=SECRETS_LOCATION):
-        config = configparser.ConfigParser()
+        config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
         try:
             config.read(secrets_location)
             self.USERNAME = config.get('echo', 'username')
@@ -57,7 +67,7 @@ class Settings:
         except configparser.NoSectionError:
             sys.stdout.write("""Region [echo] was not found in the configuration file. 
 You must set the location to a configuration file using the environment variable  
-ECHO_SECRETS_LOCATION or have a file named "secrets.conf". Check the documentation 
+INTERFACE_SECRETS_LOCATION or have a file named "secrets.conf". Check the documentation 
 for an example layout of this file.""")
             self.USERNAME = ''
             self.PASSWORD = ''
@@ -87,6 +97,7 @@ class BaseConnection:
             return
         return operations[key]
 
+    @keep_warm
     def API_SelectParameters(self, screen_name, name_space='Symed'):
         """
 
@@ -96,6 +107,7 @@ class BaseConnection:
         """
         return self.client.service.API_SelectParameters(self.session_id, screen_name, name_space)
 
+    @keep_warm
     def API_GeneralQuery(self, query, parameters=""):
         """
 
@@ -105,6 +117,7 @@ class BaseConnection:
         """
         return self.client.service.API_GeneralQuery(self.session_id, query, parameters)
 
+    @keep_warm
     def API_GetData(self, screen_name, name_space, parameters):
         """
 
@@ -115,6 +128,7 @@ class BaseConnection:
         """
         return self.client.service.API_GetData(self.session_id, screen_name, name_space, parameters)
 
+    @keep_warm
     def API_UpdateData(self, tree_name, level_name, screen_name, name_space, parameters, dsXML):
         """
 
@@ -129,7 +143,8 @@ class BaseConnection:
         return self.client.service.API_UpdateData(self.session_id, tree_name, level_name, screen_name, name_space,
                                                   parameters, dsXML)
 
-    def API_TreeDataCommand(self, tree_name, level_name, stored_proc, operation):
+    @keep_warm
+    def API_TreeDataCommand(self, tree_name, level_name, stored_proc, operation, param):
         """
 
         :param tree_name: the name of tree (for providers, this is ?Locations?)
@@ -139,8 +154,9 @@ class BaseConnection:
 
         :return: usually a string in the format of name|value|type where the name is the parameter name, value is the parameter value and type is the parameter type. If this format is returned, the parameter can be used directly with API_GetData to retrieve the newly added item. If there was an error, a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, etc) and YYY is the specific description.
         """
-        return self.client.service.API_TreeDataCommand(self.session_id, tree_name, level_name, stored_proc, operation)
+        return self.client.service.API_TreeDataCommand(self.session_id, tree_name, level_name, stored_proc, operation, param)
 
+    @keep_warm
     def API_CreateNoPenUser(self, email, body, subject, return_email, password, parameters, security_groups, send_mail):
         """
 
@@ -160,6 +176,7 @@ class BaseConnection:
         return self.client.service.API_CreateNoPenUser(self.session_id, email, body, subject, return_email, password,
                                                        parameters, security_groups, send_mail)
 
+    @keep_warm
     def API_Login(self, username, password):
         """
 
@@ -183,7 +200,8 @@ class BaseConnection:
         """
         return self.client.service.API_Test()
 
-    def __init__(self, settings=Settings()):
+    def __init__(self, settings=Settings(), *args, **kwargs):
+        self.settings=settings
         self.endpoint = settings.ENDPOINT
         self.session = Session()
         self.client = Client(settings.WSDL_LOCATION, transport=Transport(session=self.session))
@@ -266,7 +284,6 @@ class EchoConnection(Helpers, BaseConnection):
     """
     EchoConnection has numerous methods to facilitate the usage of the BaseConnection class.
     """
-
 
     @handle_response
     def add_physician(self, office_id, **kwargs):
@@ -451,6 +468,7 @@ class EchoConnection(Helpers, BaseConnection):
             else:
                 schema_and_data[1][0].find(key).text = str(value)
         updated_schema = ET.tostring(schema_and_data)
+        # print_xml(updated_schema)
         args = ["Locations", "Provider", "PhysicianDetail",
                 "Symed", "@PhysicianID|{physician_id}|int".format(physician_id=physician_id), updated_schema]
         return self.API_UpdateData(*args)
@@ -665,4 +683,57 @@ class EchoConnection(Helpers, BaseConnection):
         qs = "SELECT * FROM MedicalLicenses"
         schema_str = self.API_GeneralQuery(qs, "")
         return self._search_schema(schema_str, show_all=show_all, AutoID__ne=-1)
+
+
+@wrap_methods
+class EchoDebug(EchoConnection):
+    """
+    This class adds some quality-of-life improvements to the BaseConnection class.
+
+    - WRAPPED_METHODS are wrapped by WRAPPER_METHOD_NAMES
+    - wrappers can be toggled on and off during PaycomConnection instanciation.
+
+    example:
+    - paycom = PaycomConnection(show_messages=True, log_errors=False, keep_authenticated=False, serialize=False)
+
+    default:
+    - paycom = PaycomConnection(show_messages=False, log_errors=True, keep_authenticated=True, serialize=True)
+    """
+    WRAPPER_METHOD_NAMES = ['show_signature']
+    WRAPPED_METHODS = ['API_SelectParameters', 'API_GeneralQuery', 'API_GetData', 'API_UpdateData', 'API_TreeDataCommand', 'API_CreateNoPenUser', 'API_Login', 'API_Logout']
+    MESSAGE_OVERRIDE_MAP = {}
+
+    def show_xml(self, method, *args, **kwargs):
+        if self._show_xml:
+            try:
+                print_xml(args[-1])
+            except:
+                print(f"Final {method.__name__} argument not XML")
+        response = method(*args, **kwargs)
+        return response
+
+    def show_signature(self, method, *args, **kwargs):
+        if self._show_signature:
+            print(f'{method.__name__}{inspect.signature(method)}')
+        if self._show_args:
+            if 'dsXML' in str(inspect.signature(method)):
+                arg_string = ', '.join([f'"{arg}"' for arg in args[:-1]])
+                arg_string += ', *dsXML'
+            else:
+                arg_string = ', '.join([f'"{arg}"' for arg in args])
+            print(f'{method.__name__}({arg_string})')
+        if self._show_xml and 'dsXML' in str(inspect.signature(method)):
+            print_xml(args[-1])
+
+        response = method(*args, **kwargs)
+        return response
+
+    def __init__(self, settings=Settings(), show_xml=True, show_signature=True, show_args=True, *args, **kwargs):
+        super(EchoConnection, self).__init__(settings, *args, **kwargs)
+        self._show_xml = show_xml
+        self._show_signature = show_signature
+        self._show_args = show_args
+        # the docstring is more useful if it the BaseConnection docstring is shown first,
+        EchoDebug.__doc__ = EchoConnection.__doc__ + self.__doc__
+        self.__doc__ = EchoDebug.__doc__
 

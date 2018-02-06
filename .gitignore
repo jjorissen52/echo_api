@@ -100,7 +100,6 @@ ENV/
 .idea/misc.xml
 .idea/modules.xml
 .idea/workspace.xml
-Development.ipynb
-*Write-Up*
-.Documentation.ipynb
+*.ipynb
 *.csv
+!README*
