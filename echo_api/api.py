@@ -714,14 +714,14 @@ class EchoDebug(EchoConnection):
 
     def show_signature(self, method, *args, **kwargs):
         if self._show_signature:
-            print(f'{method.__name__}{inspect.signature(method)}')
+            print(str(method.__name__) + str(inspect.signature(method)))
         if self._show_args:
             if 'dsXML' in str(inspect.signature(method)):
-                arg_string = ', '.join([f'"{arg}"' for arg in args[:-1]])
+                arg_string = ', '.join(['"{}"'.format(arg) for arg in args[:-1]])
                 arg_string += ', *dsXML'
             else:
-                arg_string = ', '.join([f'"{arg}"' for arg in args])
-            print(f'{method.__name__}({arg_string})')
+                arg_string = ', '.join(['"{}"'.format(arg) for arg in args])
+            print('{name}({arg_string})'.format(name=method.__name__, arg_string=arg_string))
         if self._show_xml and 'dsXML' in str(inspect.signature(method)):
             print_xml(args[-1])
 
