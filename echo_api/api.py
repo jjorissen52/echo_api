@@ -30,6 +30,7 @@ SECRETS_LOCATION = os.environ.get('INTERFACE_CONF_FILE')
 SECRETS_LOCATION = os.path.abspath(SECRETS_LOCATION) if SECRETS_LOCATION else os.path.join(PROJECT_DIR, 'echo.conf')
 
 
+
 def handle_response(method):
     @wraps(method)
     def _impl(self, *method_args, **method_kwargs):
@@ -708,7 +709,7 @@ class EchoDebug(EchoConnection):
             try:
                 print_xml(args[-1])
             except:
-                print(f"Final {method.__name__} argument not XML")
+                print("Final {} argument not XML".format(method.__name__))
         response = method(*args, **kwargs)
         return response
 
@@ -729,7 +730,7 @@ class EchoDebug(EchoConnection):
         return response
 
     def __init__(self, settings=Settings(), show_xml=True, show_signature=True, show_args=True, *args, **kwargs):
-        super(EchoConnection, self).__init__(settings, *args, **kwargs)
+        super(EchoDebug, self).__init__(settings, *args, **kwargs)
         self._show_xml = show_xml
         self._show_signature = show_signature
         self._show_args = show_args
