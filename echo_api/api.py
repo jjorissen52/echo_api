@@ -25,10 +25,10 @@ class ImproperlyConfigured(BaseException):
 class APICallError(BaseException):
     pass
 
+
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRETS_LOCATION = os.environ.get('INTERFACE_CONF_FILE')
 SECRETS_LOCATION = os.path.abspath(SECRETS_LOCATION) if SECRETS_LOCATION else os.path.join(PROJECT_DIR, 'echo.conf')
-
 
 
 def handle_response(method):
@@ -80,8 +80,8 @@ class BaseConnection:
     """
     BaseConnection has the core functionality required to interact with Echo's SOAP API.
     """
-
-    def get_operations(self, key=None):
+    @staticmethod
+    def get_operations(key=None):
         """
 
         :param key: (str) key corresponding to a stored procedure. If empty will show all stored procedures
@@ -171,7 +171,8 @@ class BaseConnection:
         :param send_mail: (bool) do we send the registration mail?
         :return: a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, Success, etc) and YYY is the specific description.
         """
-        if issubclass(security_groups, list):
+        print(type(security_groups))
+        if issubclass(security_groups.__class__, list):
             security_groups = '|'.join(security_groups)
 
         return self.client.service.API_CreateNoPenUser(self.session_id, email, body, subject, return_email, password,
@@ -220,7 +221,8 @@ class Helpers:
     class Meta:
         abstract = True
 
-    def _search_schema(self, schema_str, show_all=True, **kwarg):
+    @staticmethod
+    def _search_schema(schema_str, show_all=True, **kwarg):
         """
 
         :param schema_str: (xml string) valid xml string
@@ -364,6 +366,44 @@ class EchoConnection(Helpers, BaseConnection):
                 return self.edit_physician(physician_id, **kwargs)
             else:
                 return result
+
+    @handle_response
+    def add_nopen_account(self, physician_id, send_email=0, **kwargs):
+        """
+        Adds a No Pen account for an existing user and sets them to "In Process" so that they can login.
+
+        :param physician_id: (int) ID of physician record in Echo Database
+        :param send_email: {bool (0 or 1)} Whether or not to have Echo send the invitation email informing the user
+        :param kwargs: password and security_groups are required
+        :return: (str) description of changes made
+        """
+        physician = self.get_physician(physician_id)
+        physician_record = XMLSchema(physician).search(EMail__ne='-1')
+        if not physician_record:
+            raise APICallError('No physician with ID {0}'.format(physician_id))
+        physician_record = physician_record[0]
+        email = kwargs.get('email', physician_record['EMail'])
+        last_name = physician_record.get('LastName')
+        first_name = physician_record.get('FirstName')
+        password = kwargs['password']
+        subject = kwargs.get('subject', 'No Pen Account Creation')
+        account_info = "\n{} {}\n\nUsername: {}\nPassword: {}\n\n".format(first_name, last_name, email, password)
+        body = kwargs.get('body', '')
+        if '{}' in body:
+            body.format(account_info)
+        else:
+            body += account_info
+        parameters = 'PhysicianID|{}|int'.format(physician_id)
+        security_groups = kwargs['security_groups']
+        return_email = kwargs['return_email'] if send_email else None
+        nopen_result = self.API_CreateNoPenUser(email, body, subject, return_email, password, parameters, security_groups, send_email)
+        if "Success|" not in nopen_result:
+            raise APICallError(nopen_result)
+        status_result = self.edit_physician(physician_id, EnrollmentStatusID=2)
+        if "Error|" in status_result:
+            raise APICallError(status_result)
+        return nopen_result
+
 
     @handle_response
     def add_medical_license(self, physician_id, **kwargs):
