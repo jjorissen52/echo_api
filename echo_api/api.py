@@ -171,7 +171,6 @@ class BaseConnection:
         :param send_mail: (bool) do we send the registration mail?
         :return: a string in the format ?XXX|YYY? where XXX is a general description (Error, Denied, Success, etc) and YYY is the specific description.
         """
-        print(type(security_groups))
         if issubclass(security_groups.__class__, list):
             security_groups = '|'.join(security_groups)
 
@@ -208,7 +207,14 @@ class BaseConnection:
         self.session = Session()
         self.client = Client(settings.WSDL_LOCATION, transport=Transport(session=self.session))
         if "Success" in self.client.service.API_Test():
-            self.session_id = self.client.service.API_Login(settings.USERNAME, settings.PASSWORD).split("|")[1]
+            response = self.client.service.API_Login(settings.USERNAME, settings.PASSWORD)
+            if "Error" in response:
+                raise APICallError(response)
+            if "SessionID" in response:
+                self.session_id = self.client.service.API_Login(settings.USERNAME, settings.PASSWORD).split("|")[1]
+            else:
+                raise NotImplementedError("An unhandled exception occurred during authentication: " + response)
+
         else:
             raise APITestFailError("Test connection failed.")
 
