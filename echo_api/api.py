@@ -380,7 +380,7 @@ class EchoConnection(Helpers, BaseConnection):
 
         :param physician_id: (int) ID of physician record in Echo Database
         :param send_email: {bool (0 or 1)} Whether or not to have Echo send the invitation email informing the user
-        :param kwargs: password and security_groups are required
+        :param kwargs: password and security_groups (pipe delimited) are required
         :return: (str) description of changes made
         """
         physician = self.get_physician(physician_id)
@@ -405,11 +405,10 @@ class EchoConnection(Helpers, BaseConnection):
         nopen_result = self.API_CreateNoPenUser(email, body, subject, return_email, password, parameters, security_groups, send_email)
         if "Success|" not in nopen_result:
             raise APICallError(nopen_result)
-        status_result = self.edit_physician(physician_id, EnrollmentStatusID=2)
+        status_result = self.edit_physician(physician_id, EnrollmentStatusID="2")
         if "Error|" in status_result:
             raise APICallError(status_result)
         return nopen_result
-
 
     @handle_response
     def add_medical_license(self, physician_id, **kwargs):
