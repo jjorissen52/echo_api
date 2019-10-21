@@ -72,7 +72,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['xmlmanip', 'requests==2.18.3', 'zeep==2.3.0', 'configparser'],
+    install_requires=['xmlmanip', 'requests==2.20.0', 'zeep==2.3.0', 'configparser'],
 
     python_requires='>=3.4',
 )
